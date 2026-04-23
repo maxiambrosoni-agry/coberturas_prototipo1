@@ -3,75 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agrinter Cereales - Coberturas</title>
+    <title>Agrinter Cereales - Dashboard de Coberturas</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
-    <div id="root">
-        <header class="bg-white border-b p-4 mb-6 shadow-sm">
-            <div class="max-w-4xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="bg-green-600 p-2 rounded-lg text-white">
-                        <i data-lucide="trending-up"></i>
-                    </div>
-                    <h1 class="text-xl font-bold text-slate-800 tracking-tight">AGRINTER CEREALES <span class="text-green-600 block text-xs uppercase tracking-widest">Estrategias de Cobertura</span></h1>
-                </div>
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs text-slate-400 font-medium">Actualizado al instante</p>
-                </div>
-            </div>
-        </header>
+<body class="bg-gray-50">
+    <div id="root"></div>
 
-        <main class="max-w-4xl mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-green-200 transition-colors">
-                    <h3 class="text-slate-500 text-sm font-semibold mb-2">Soja Rosario</h3>
-                    <div class="text-3xl font-bold text-slate-800">USD 295</div>
-                    <div class="text-green-500 text-xs mt-2 flex items-center gap-1 font-medium">
-                        <i data-lucide="arrow-up-right" class="w-3 h-3"></i> +1.2% hoy
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-yellow-200 transition-colors">
-                    <h3 class="text-slate-500 text-sm font-semibold mb-2">Maíz</h3>
-                    <div class="text-3xl font-bold text-slate-800">USD 185</div>
-                    <div class="text-red-500 text-xs mt-2 flex items-center gap-1 font-medium">
-                        <i data-lucide="arrow-down-right" class="w-3 h-3"></i> -0.5% hoy
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-200 transition-colors">
-                    <h3 class="text-slate-500 text-sm font-semibold mb-2">Trigo</h3>
-                    <div class="text-3xl font-bold text-slate-800">USD 215</div>
-                    <div class="text-slate-400 text-xs mt-2 font-medium italic">Sin cambios</div>
-                </div>
-            </div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // --- CONFIGURACIÓN DESDE VERCEL ---
+        // Estas variables se alimentan de lo que pusiste en el paso 4 del PDF
+        const firebaseConfig = JSON.parse(window.env?.VITE_FIREBASE_CONFIG || '{}');
+        const appId = window.env?.VITE_APP_ID || 'agrinter-dashboard';
 
-            <div class="bg-green-700 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-                <div class="relative z-10">
-                    <h2 class="text-2xl font-bold mb-4 italic">¿Querés asegurar un piso de precio?</h2>
-                    <p class="text-green-100 mb-6 max-w-md">Consultanos por estrategias de <strong>Puts Sintéticos</strong> y opciones para proteger tu producción de la volatilidad.</p>
-                    <button class="bg-white text-green-700 px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:bg-green-50 transition-colors shadow-lg">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i>
-                        Contactar Mesa de Granos
-                    </button>
-                </div>
-                <div class="absolute -right-10 -bottom-10 opacity-10 rotate-12">
-                    <i data-lucide="sprout" class="w-64 h-64"></i>
-                </div>
-            </div>
-        </main>
+        // Importación de Firebase (versión web compatible)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        <footer class="mt-12 py-8 text-center text-slate-400 border-t">
-            <p class="text-sm">© 2026 Agrinter Cereales - Análisis de Mercado</p>
-            <div class="mt-4 opacity-50 hover:opacity-100 transition-opacity">
-                <button class="text-xs border px-3 py-1 rounded-md hover:bg-slate-100 transition-colors">Modo Editor</button>
-            </div>
-        </footer>
-    </div>
+        // Inicialización
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    <script>
-        // Inicializar iconos
-        lucide.createIcons();
+        const App = () => {
+            // AQUÍ PEGA TU LÓGICA DE ESTADOS (marketData, activeTab, etc.)
+            const [activeTab, setActiveTab] = useState('Soja');
+            const [selectedOperator, setSelectedOperator] = useState('Maximo');
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [marketData, setMarketData] = useState({
+                Soja: [{ mes: 'Julio 2026', futuro: 329, strike: 332, prima: 7, piso: 322, fecha: '23/06/2026' }],
+                Trigo: [{ mes: 'Dic 2026', futuro: 217, strike: 220, prima: 9, piso: 208, fecha: '20/11/2026' }],
+                Maiz: [{ mes: 'Dic 2026', futuro: 194, strike: 196, prima: 7, piso: 187, fecha: '20/11/2026' }]
+            });
+
+            // Autenticación Silenciosa
+            useEffect(() => {
+                signInAnonymously(auth).catch(console.error);
+                lucide.createIcons();
+            }, []);
+
+            // Sincronización en Tiempo Real
+            useEffect(() => {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'marketValues', 'current');
+                return onSnapshot(docRef, (docSnap) => {
+                    if (docSnap.exists()) setMarketData(docSnap.data().content);
+                });
+            }, []);
+
+            return (
+                <div className="min-h-screen p-4 md:p-8">
+                    {/* El diseño de tu Dashboard va aquí */}
+                    <header className="flex justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border-b-4 border-yellow-400">
+                        <div>
+                            <h1 className="text-2xl font-black uppercase italic">Agrinter Cereales</h1>
+                            <p className="text-xs font-bold text-gray-400 tracking-widest uppercase">Estrategias de Cobertura</p>
+                        </div>
+                        <div className="flex gap-2">
+                            {['Soja', 'Maiz', 'Trigo'].map(g => (
+                                <button key={g} onClick={() => setActiveTab(g)} className={`px-4 py-2 rounded-full font-bold ${activeTab === g ? 'bg-black text-yellow-400' : 'bg-gray-100'}`}>{g}</button>
+                            ))}
+                        </div>
+                    </header>
+
+                    <main className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {marketData[activeTab].map((item, idx) => (
+                            <div key={idx} className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                                <div className="bg-yellow-400 p-4 font-black italic text-center uppercase tracking-tighter">Cobertura {activeTab} {item.mes}</div>
+                                <div className="p-8 text-center">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Piso Asegurado Neto</p>
+                                    <div className="text-6xl font-black italic tracking-tighter"><span className="text-xl">u$d</span> {item.piso}</div>
+                                </div>
+                                <div className="p-6 bg-gray-50 border-t flex flex-col gap-4">
+                                    <button className="w-full bg-black text-yellow-400 py-4 rounded-2xl font-black uppercase shadow-lg">Consultar con {selectedOperator}</button>
+                                </div>
+                            </div>
+                        ))}
+                    </main>
+                    
+                    <footer className="mt-12 text-center text-gray-400">
+                        <button onClick={() => setIsAdmin(!isAdmin)} className="text-[10px] uppercase font-bold hover:text-blue-500 transition-colors">
+                            {isAdmin ? "🔒 Salir de Edición" : "📝 Modo Editor"}
+                        </button>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
