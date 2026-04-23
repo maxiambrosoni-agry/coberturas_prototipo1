@@ -13,134 +13,121 @@
 <body class="bg-gray-50">
     <div id="root"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        // Configuración de Firebase (de tus variables de entorno en Vercel)
-        const firebaseConfig = JSON.parse(window.env?.VITE_FIREBASE_CONFIG || '{}');
-        const appId = window.env?.VITE_APP_ID || 'agrinter-dashboard';
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        window.renderApp(db, auth, appId);
-    </script>
-
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        window.renderApp = (db, auth, appId) => {
-            const App = () => {
-                const [activeTab, setActiveTab] = useState('Soja');
-                const [selectedOperator, setSelectedOperator] = useState('Maximo');
-                const [isAdmin, setIsAdmin] = useState(false);
-                const [loading, setLoading] = useState(false);
-                const [marketData, setMarketData] = useState({
-                    Soja: [{ mes: 'Julio 2026', futuro: 329, strike: 332, prima: 7, piso: 322, fecha: '23/06/2026' }],
-                    Trigo: [{ mes: 'Dic 2026', futuro: 217, strike: 220, prima: 9, piso: 208, fecha: '20/11/2026' }],
-                    Maiz: [{ mes: 'Dic 2026', futuro: 194, strike: 196, prima: 7, piso: 187, fecha: '20/11/2026' }]
-                });
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('Soja');
+            const [selectedOperator, setSelectedOperator] = useState('Maximo');
+            const [isAdmin, setIsAdmin] = useState(false);
+            
+            // Datos de respaldo para que NUNCA se vea en blanco
+            const [marketData, setMarketData] = useState({
+                Soja: [{ mes: 'Julio 2026', futuro: 329, strike: 332, prima: 7, piso: 322, fecha: '23/06/2026' }],
+                Trigo: [{ mes: 'Dic 2026', futuro: 217, strike: 220, prima: 9, piso: 208, fecha: '20/11/2026' }],
+                Maiz: [{ mes: 'Dic 2026', futuro: 194, strike: 196, prima: 7, piso: 187, fecha: '20/11/2026' }]
+            });
 
-                useEffect(() => {
-                    signInAnonymously(auth);
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'marketValues', 'current');
-                    const unsub = onSnapshot(docRef, (snap) => {
-                        if (snap.exists()) setMarketData(snap.data().content);
-                        setTimeout(() => lucide.createIcons(), 100);
-                    });
-                    return unsub;
-                }, []);
+            useEffect(() => {
+                // Forzar carga de iconos
+                setTimeout(() => lucide.createIcons(), 500);
+            }, [activeTab, isAdmin]);
 
-                const handleUpdate = (grain, idx, field, val) => {
-                    const newData = { ...marketData };
-                    newData[grain][idx][field] = field === 'mes' || field === 'fecha' ? val : parseFloat(val) || 0;
-                    if (field === 'futuro' || field === 'prima') {
-                        newData[grain][idx].piso = (newData[grain][idx].futuro - newData[grain][idx].prima).toFixed(2);
-                    }
-                    setMarketData(newData);
-                };
-
-                const saveChanges = async () => {
-                    setLoading(true);
-                    try {
-                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'marketValues', 'current');
-                        await setDoc(docRef, { content: marketData, updatedAt: new Date().toISOString() });
-                        setIsAdmin(false);
-                        alert("¡Precios actualizados para todos los clientes!");
-                    } catch (e) { alert("Error al guardar. Revisa la consola."); }
-                    setLoading(false);
-                };
-
-                return (
-                    <div className="min-h-screen bg-gray-50 pb-20">
-                        <header className="bg-white border-b-4 border-yellow-400 p-4 mb-6 sticky top-0 z-50 shadow-sm">
-                            <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="bg-black text-yellow-400 w-12 h-12 flex items-center justify-center rounded font-black text-2xl">A</div>
-                                    <div>
-                                        <h1 className="text-xl font-black uppercase leading-none">Agrinter Cereales</h1>
-                                        <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Estrategias de Cobertura</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2 bg-gray-100 p-1 rounded-full">
-                                    {Object.keys(marketData).map(g => (
-                                        <button key={g} onClick={() => setActiveTab(g)} 
-                                            className={`px-6 py-1.5 rounded-full text-xs font-bold transition-all ${activeTab === g ? 'bg-black text-yellow-400' : 'text-gray-400'}`}>{g}</button>
-                                    ))}
-                                </div>
-                            </div>
-                        </header>
-
-                        <main className="max-w-6xl mx-auto px-4">
-                            {isAdmin && (
-                                <div className="mb-6 bg-blue-600 text-white p-4 rounded-2xl flex justify-between items-center shadow-lg animate-pulse">
-                                    <div className="flex items-center gap-2 font-bold uppercase text-sm">Modo Editor Activado</div>
-                                    <button onClick={saveChanges} disabled={loading} className="bg-white text-blue-600 px-6 py-2 rounded-xl font-black text-xs">
-                                        {loading ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
-                                    </button>
-                                </div>
-                            )}
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {marketData[activeTab].map((item, idx) => (
-                                    <div key={idx} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                                        <div className="bg-yellow-400 px-5 py-4 font-black text-xs uppercase italic border-b border-black/10">
-                                            {isAdmin ? <input className="bg-white/20 border-none px-2 rounded w-full" value={item.mes} onChange={e => handleUpdate(activeTab, idx, 'mes', e.target.value)} /> : `Cobertura ${activeTab} ${item.mes}`}
-                                        </div>
-                                        <div className="p-8 text-center">
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Piso Asegurado Neto</p>
-                                            <div className="text-6xl font-black text-gray-900 tracking-tighter"><span className="text-2xl mr-1 font-bold">u$d</span>{item.piso}</div>
-                                        </div>
-                                        <div className="p-6 bg-gray-50 border-t space-y-3">
-                                            <div className="flex justify-between items-center text-sm font-bold">
-                                                <span className="text-gray-500 uppercase text-[10px]">Venta Futuro MtR</span>
-                                                {isAdmin ? <input type="number" className="w-20 text-right border rounded" value={item.futuro} onChange={e => handleUpdate(activeTab, idx, 'futuro', e.target.value)} /> : <span>u$d {item.futuro}</span>}
-                                            </div>
-                                            <div className="flex justify-between items-center text-sm font-bold">
-                                                <span className="text-red-500 uppercase text-[10px]">Costo Seguro (Prima)</span>
-                                                {isAdmin ? <input type="number" className="w-20 text-right border rounded" value={item.prima} onChange={e => handleUpdate(activeTab, idx, 'prima', e.target.value)} /> : <span className="text-red-500">- u$d {item.prima}</span>}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </main>
-
-                        <footer className="mt-8 text-center">
-                            <button onClick={() => setIsAdmin(!isAdmin)} className="text-[10px] text-gray-300 font-bold uppercase hover:text-blue-500">
-                                {isAdmin ? "🔒 Cerrar Editor" : "📝 Modo Editor"}
-                            </button>
-                        </footer>
-                    </div>
-                );
+            const handleUpdate = (grain, idx, field, val) => {
+                const newData = { ...marketData };
+                newData[grain][idx][field] = (field === 'mes' || field === 'fecha') ? val : parseFloat(val) || 0;
+                if (field === 'futuro' || field === 'prima') {
+                    newData[grain][idx].piso = (newData[grain][idx].futuro - newData[grain][idx].prima).toFixed(2);
+                }
+                setMarketData(newData);
             };
 
-            const root = ReactDOM.createRoot(document.getElementById('root'));
-            root.render(<App />);
+            const operators = {
+                'Gonzalo': { name: 'Gonza', phone: '5493410000000' },
+                'Maximo': { name: 'Maximo', phone: '5492317472899' } 
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-50 pb-20 font-sans">
+                    <header className="bg-white border-b-4 border-yellow-400 p-4 mb-6 sticky top-0 z-50 shadow-sm">
+                        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-black text-yellow-400 w-12 h-12 flex items-center justify-center rounded font-black text-2xl shadow-lg">A</div>
+                                <div>
+                                    <h1 className="text-xl font-black uppercase leading-none tracking-tight">Agrinter Cereales</h1>
+                                    <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Estrategias de Cobertura</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-2 bg-gray-100 p-1 rounded-full">
+                                {Object.keys(marketData).map(g => (
+                                    <button key={g} onClick={() => setActiveTab(g)} 
+                                        className={`px-6 py-1.5 rounded-full text-xs font-black transition-all ${activeTab === g ? 'bg-black text-yellow-400 shadow-md' : 'text-gray-400'}`}>{g}</button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-6xl mx-auto px-4">
+                        <div className="flex justify-center mb-6">
+                            <div className="bg-white border p-1 rounded-xl flex gap-1 shadow-sm">
+                                {Object.keys(operators).map(op => (
+                                    <button key={op} onClick={() => setSelectedOperator(op)}
+                                        className={`px-4 py-2 rounded-lg text-[11px] font-bold uppercase transition-all ${selectedOperator === op ? 'bg-gray-100 text-black' : 'text-gray-300'}`}>{op}</button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {isAdmin && (
+                            <div className="mb-6 bg-blue-600 text-white p-4 rounded-2xl flex justify-between items-center shadow-xl animate-pulse">
+                                <div className="font-black uppercase text-xs tracking-widest">Modo Editor: Cambiá los valores abajo</div>
+                                <button onClick={() => {setIsAdmin(false); alert("Los cambios se ven reflejados localmente. Para guardar en la nube revisa la conexión de Firebase.");}} className="bg-white text-blue-600 px-6 py-2 rounded-xl font-black text-xs uppercase">Simular Guardado</button>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {marketData[activeTab].map((item, idx) => (
+                                <div key={idx} className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden transform transition-all hover:scale-[1.02]">
+                                    <div className="bg-yellow-400 px-6 py-4 flex justify-between items-center">
+                                        <span className="font-black text-[11px] uppercase italic tracking-tighter">
+                                            {isAdmin ? <input className="bg-white/30 border-none rounded px-1" value={item.mes} onChange={e => handleUpdate(activeTab, idx, 'mes', e.target.value)} /> : `COBERTURA ${activeTab} ${item.mes}`}
+                                        </span>
+                                        <i data-lucide="trending-up" className="w-4 h-4"></i>
+                                    </div>
+                                    <div className="p-8 text-center">
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">Piso Asegurado Neto</p>
+                                        <div className="text-7xl font-black text-gray-900 tracking-tighter"><span className="text-2xl mr-1 font-bold">u$d</span>{item.piso}</div>
+                                    </div>
+                                    <div className="p-6 bg-gray-50 border-t space-y-4">
+                                        <div className="bg-white p-4 rounded-2xl border border-gray-100 space-y-3">
+                                            <div className="flex justify-between text-sm font-bold border-b pb-2">
+                                                <span className="text-gray-400 uppercase text-[10px]">Venta Futuro MtR</span>
+                                                {isAdmin ? <input type="number" className="w-16 text-right border" value={item.futuro} onChange={e => handleUpdate(activeTab, idx, 'futuro', e.target.value)} /> : <span>u$d {item.futuro}</span>}
+                                            </div>
+                                            <div className="flex justify-between text-sm font-bold">
+                                                <span className="text-red-500 uppercase text-[10px]">Costo Seguro (Prima)</span>
+                                                {isAdmin ? <input type="number" className="w-16 text-right border" value={item.prima} onChange={e => handleUpdate(activeTab, idx, 'prima', e.target.value)} /> : <span className="text-red-500">- u$d {item.prima}</span>}
+                                            </div>
+                                        </div>
+                                        <button onClick={() => window.open(`https://wa.me/${operators[selectedOperator].phone}`, '_blank')} className="w-full bg-black text-yellow-400 py-4 rounded-2xl font-black uppercase text-xs shadow-xl flex items-center justify-center gap-2 hover:bg-gray-800 transition-all">
+                                            <i data-lucide="message-circle" className="w-5 h-5"></i> Consultar con {operators[selectedOperator].name}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </main>
+
+                    <footer className="mt-12 text-center">
+                        <button onClick={() => setIsAdmin(!isAdmin)} className="text-[10px] text-gray-300 font-bold uppercase hover:text-yellow-600 transition-colors">
+                            {isAdmin ? "🔒 Bloquear Edición" : "📝 Activar Modo Editor"}
+                        </button>
+                    </footer>
+                </div>
+            );
         };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
