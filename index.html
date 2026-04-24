@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agrinter Cereales - Coberturas</title>
+    <title>Agrinter Cereales - Dashboard de Coberturas</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-        .font-condensed { font-family: 'Roboto Condensed', sans-serif; }
+        .font-condensed { font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: -0.05em; }
     </style>
 </head>
 <body class="bg-white text-slate-900">
@@ -22,37 +22,37 @@
         const { useState, useEffect } = React;
 
         const App = () => {
-            const [activeTab, setActiveTab] = useState('Soja');
-            const [selectedOperator, setSelectedOperator] = useState('Maximo');
+            const [activeTab, setActiveTab] = useState('SOJA');
+            const [selectedOperator, setSelectedOperator] = useState('MAXIMO');
 
             const marketData = {
-                Soja: [
+                SOJA: [
                     { mes: 'MAYO 2026', futuro: 325, prima: 8, strike: 330, piso: 317, fecha: '15/05/26' },
                     { mes: 'JULIO 2026', futuro: 329, prima: 7, strike: 332, piso: 322, fecha: '23/06/26' },
                     { mes: 'NOV 2026', futuro: 338, prima: 12, strike: 340, piso: 326, fecha: '23/10/26' }
                 ],
-                Trigo: [
+                TRIGO: [
                     { mes: 'ENE 2026', futuro: 210, prima: 6, strike: 212, piso: 204, fecha: '15/12/25' },
                     { mes: 'MAR 2026', futuro: 215, prima: 8, strike: 218, piso: 207, fecha: '20/02/26' }
                 ],
-                Maiz: [
+                MAIZ: [
                     { mes: 'ABR 2026', futuro: 185, prima: 5, strike: 188, piso: 180, fecha: '15/03/26' },
                     { mes: 'JUL 2026', futuro: 192, prima: 7, strike: 195, piso: 185, fecha: '20/06/26' }
                 ]
             };
 
             const operators = {
-                'Gonzalo': { name: 'Gonza', phone: '5493410000000' },
-                'Maximo': { name: 'Maximo', phone: '5492317472899' } 
+                'GONZALO': { name: 'GONZA', phone: '5493410000000' },
+                'MAXIMO': { name: 'MAXIMO', phone: '5492317472899' } 
             };
 
             useEffect(() => { lucide.createIcons(); }, [activeTab]);
 
             return (
                 <div className="min-h-screen">
-                    {/* Header Ejecutivo (Foto 1) */}
+                    {/* Header Institucional - Recto */}
                     <header className="bg-white border-b-2 border-slate-100 p-4 sticky top-0 z-50">
-                        <div className="max-w-6xl mx-auto flex justify-between items-center">
+                        <div className="max-w-7xl mx-auto flex justify-between items-center px-4">
                             <div className="flex items-center gap-3">
                                 <div className="bg-slate-900 text-yellow-400 w-10 h-10 flex items-center justify-center font-black text-xl border-b-2 border-yellow-400">A</div>
                                 <div>
@@ -61,91 +61,116 @@
                                 </div>
                             </div>
                             
-                            <div className="flex bg-slate-50 p-1 rounded-full border">
-                                {['Soja', 'Trigo', 'Maiz'].map(g => (
+                            <div className="flex bg-slate-50 p-1 border">
+                                {['SOJA', 'TRIGO', 'MAIZ'].map(g => (
                                     <button key={g} onClick={() => setActiveTab(g)} 
-                                        className={`px-6 py-1.5 rounded-full text-[11px] font-bold uppercase transition-all ${activeTab === g ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>{g}</button>
+                                        className={`px-8 py-2 text-[11px] font-bold uppercase transition-all ${activeTab === g ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-400 hover:text-slate-600'}`}>{g}</button>
                                 ))}
                             </div>
                         </div>
                     </header>
 
-                    <main className="max-w-6xl mx-auto px-4 py-10">
-                        {/* Selector Operador (Margen Derecho - Foto 1) */}
-                        <div className="flex justify-end mb-10">
-                            <div className="flex items-center gap-3 bg-white border border-slate-100 p-1.5 rounded-xl shadow-sm">
-                                <span className="text-[9px] font-bold text-slate-400 uppercase px-2">Consultar con:</span>
+                    <main className="max-w-7xl mx-auto px-4 py-10">
+                        {/* Selector Operador - Margen Derecho */}
+                        <div className="flex justify-end mb-10 px-4">
+                            <div className="flex items-center gap-3 bg-white border border-slate-100 p-1 shadow-sm">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase px-4 border-r">CONSULTAR CON:</span>
                                 {Object.keys(operators).map(op => (
                                     <button key={op} onClick={() => setSelectedOperator(op)}
-                                        className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${selectedOperator === op ? 'bg-slate-100 text-slate-900 shadow-inner' : 'text-slate-300 hover:text-slate-500'}`}>{op}</button>
+                                        className={`px-8 py-2 text-[10px] font-black uppercase transition-all ${selectedOperator === op ? 'bg-slate-900 text-white' : 'text-slate-300 hover:text-slate-500'}`}>{op}</button>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Grid de Coberturas (Mix: Estructura Foto 3 + Datos Foto Amarillo) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                        {/* Grid de Coberturas */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16 px-4">
                             {marketData[activeTab].map((item, idx) => (
-                                <div key={idx} className="bg-white border border-slate-100 rounded-sm shadow-sm flex flex-col transition-all hover:border-yellow-400 hover:shadow-lg">
-                                    {/* Subtítulo Sutil (Foto 3) */}
-                                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                <div key={idx} className="bg-white border border-slate-100 shadow-sm flex flex-col transition-all hover:border-yellow-400">
+                                    {/* Header Sutil */}
+                                    <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                                         <span className="font-black text-[10px] uppercase tracking-wider text-slate-600">{item.mes}</span>
-                                        <div className="bg-yellow-400/10 text-yellow-700 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-tight">A3 Cobertura</div>
+                                        <div className="bg-yellow-400 text-slate-900 px-3 py-1 text-[8px] font-black uppercase tracking-tight">AGRINTER MARKET</div>
                                     </div>
 
-                                    {/* Precio Piso (Foto 3) */}
+                                    {/* Precio Piso Principal */}
                                     <div className="p-8 text-center border-b border-slate-100">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Precio Piso Asegurado</p>
-                                        <div className="text-6xl font-black text-slate-900 font-condensed tracking-tighter flex items-baseline justify-center">
-                                            <span className="text-xl mr-1 font-bold text-slate-400">U$D</span>{item.piso}
+                                        <div className="text-7xl font-black text-slate-900 font-condensed tracking-tighter flex items-baseline justify-center">
+                                            <span className="text-2xl mr-1 font-bold text-slate-400">U$D</span>{item.piso}
                                         </div>
-                                        <p className="text-[9px] font-bold text-slate-300 uppercase italic mt-1 tracking-tighter">Vence: {item.fecha}</p>
+                                        <p className="text-[9px] font-bold text-slate-300 uppercase italic mt-1 tracking-tighter">VENCE: {item.fecha}</p>
                                     </div>
 
-                                    {/* Detalle Técnico Detallado (Como en tarjeta amarilla) */}
-                                    <div className="p-6 space-y-4">
-                                        <div className="bg-white border border-slate-100 p-5 rounded-lg space-y-4">
-                                            <div className="flex justify-between items-center text-xs font-bold border-b border-slate-100 pb-3">
+                                    {/* Detalle Técnico */}
+                                    <div className="p-6 space-y-5">
+                                        <div className="bg-white border border-slate-50 p-5 space-y-4 shadow-sm">
+                                            <div className="flex justify-between items-center text-xs font-bold border-b border-slate-50 pb-3">
                                                 <span className="flex items-center gap-2 text-slate-500 uppercase text-[9px] tracking-widest">
-                                                    <i data-lucide="arrow-down-circle" className="w-4 h-4"></i> Venta Futuro
+                                                    <i data-lucide="arrow-down-circle" className="w-4 h-4"></i> VENTA FUTURO
                                                 </span>
-                                                <span className="text-slate-800 font-condensed font-bold">U$D {item.futuro}</span>
+                                                <span className="text-slate-800 font-black">U$D {item.futuro}</span>
                                             </div>
-                                            <div className="flex justify-between items-center text-xs font-bold border-b border-slate-100 pb-3">
+                                            <div className="flex justify-between items-center text-xs font-bold border-b border-slate-50 pb-3">
                                                 <span className="flex items-center gap-2 text-red-500 uppercase text-[9px] tracking-widest">
-                                                    <i data-lucide="alert-circle" className="w-4 h-4"></i> Costo Seguro (Prima)
+                                                    <i data-lucide="alert-circle" className="w-4 h-4"></i> COSTO SEGURO (PRIMA)
                                                 </span>
-                                                <span className="text-red-600 font-condensed font-bold">- U$D {item.prima}</span>
+                                                <span className="text-red-600 font-black">- U$D {item.prima}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-xs font-bold">
                                                 <span className="flex items-center gap-2 text-green-600 uppercase text-[9px] tracking-widest">
-                                                    <i data-lucide="trending-up" className="w-4 h-4"></i> Acompaña suba desde
+                                                    <i data-lucide="trending-up" className="w-4 h-4"></i> ACOMPAÑA SUBA DESDE
                                                 </span>
-                                                <span className="text-green-700 font-condensed font-bold">U$D {item.strike}</span>
+                                                <span className="text-green-700 font-black">U$D {item.strike}</span>
                                             </div>
                                         </div>
 
                                         <button onClick={() => window.open(`https://wa.me/${operators[selectedOperator].phone}`, '_blank')} 
-                                            className="w-full bg-slate-900 text-white py-4 font-black uppercase text-[10px] tracking-[0.2em] shadow-md flex items-center justify-center gap-2 hover:bg-yellow-400 hover:text-slate-900 transition-all">
-                                            <i data-lucide="message-circle" className="w-4 h-4 text-yellow-400"></i> Operar con {operators[selectedOperator].name}
+                                            className="w-full bg-slate-900 text-white py-5 font-black uppercase text-[10px] tracking-[0.2em] shadow-md flex items-center justify-center gap-2 hover:bg-yellow-400 hover:text-slate-900 transition-all">
+                                            <i data-lucide="message-circle" className="w-4 h-4 text-yellow-400"></i> CONSULTAR CON {operators[selectedOperator].name}
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Banner Informativo Sobrio (Mix) */}
-                        <section className="bg-slate-900 rounded-sm p-12 text-slate-100 shadow-xl mb-12 border-l-4 border-yellow-400">
+                        {/* Banner Informativo */}
+                        <section className="bg-slate-900 p-12 text-slate-100 shadow-xl mb-12 border-l-4 border-yellow-400 mx-4">
                             <h2 className="text-xl font-black uppercase tracking-tight mb-4 flex items-center gap-3">
-                                <i data-lucide="shield-check" className="text-yellow-400"></i> Put Sintético A3: Seguridad y Flexibilidad
+                                <i data-lucide="shield-check" className="text-yellow-400"></i> Seguro de Precio: Put Sintético
                             </h2>
-                            <p className="text-slate-400 text-sm leading-relaxed max-w-4xl italic">
-                                Asegure hoy mismo un precio mínimo garantizado para su producción, manteniendo abierta la posibilidad de capturar cualquier alza del mercado. Operar en A3 Mercados le permite flexibilizar su logística comercial sin entregar físicamente la mercadería física.
+                            <p className="text-slate-400 text-sm leading-relaxed max-w-5xl italic">
+                                Asegure hoy mismo un valor mínimo para su producción manteniendo el beneficio si el precio del grano sube. Es la herramienta más segura para proteger su rentabilidad frente a la volatilidad sin comprometer la mercadería física.
                             </p>
                         </section>
+
+                        {/* Tabla Comparativa */}
+                        <div className="overflow-x-auto bg-white border border-slate-200 shadow-sm mx-4">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-slate-900 text-slate-100 text-[9px] uppercase font-black tracking-widest">
+                                        <th className="p-5 border-r border-slate-800">Variable</th>
+                                        <th className="p-5 border-r border-slate-800 italic text-slate-400">Venta Forward</th>
+                                        <th className="p-5 bg-yellow-400 text-slate-900 italic">Put Sintético A3</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-[11px] font-bold uppercase italic">
+                                    <tr className="border-b hover:bg-slate-50 transition-colors">
+                                        <td className="p-5 bg-slate-50 text-slate-400 border-r">Flexibilidad</td>
+                                        <td className="p-5 border-r">Comprometida</td>
+                                        <td className="p-5 font-black">Libre disponibilidad Mercado A3</td>
+                                    </tr>
+                                    <tr className="border-b hover:bg-slate-50 transition-colors">
+                                        <td className="p-5 bg-slate-50 text-slate-400 border-r">Captura de Alzas</td>
+                                        <td className="p-5 border-r text-red-500">No permite</td>
+                                        <td className="p-5 text-green-600 font-black italic tracking-tighter">Habilitada vía Call</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </main>
 
-                    <footer className="py-8 text-center bg-white border-t">
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] italic">AGRINTER CEREALES</p>
+                    <footer className="py-12 text-center bg-white border-t">
+                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em] italic">AGRINTER CEREALES</p>
                     </footer>
                 </div>
             );
