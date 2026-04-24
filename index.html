@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agrinter Cereales - Dashboard</title>
+    <title>Agrinter Cereales - Dashboard de Coberturas</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -20,106 +24,167 @@
             const [activeTab, setActiveTab] = useState('Soja');
             const [selectedOperator, setSelectedOperator] = useState('Maximo');
             const [isAdmin, setIsAdmin] = useState(false);
-            
-            // Datos de respaldo para que NUNCA se vea en blanco
+
             const [marketData, setMarketData] = useState({
-                Soja: [{ mes: 'Julio 2026', futuro: 329, strike: 332, prima: 7, piso: 322, fecha: '23/06/2026' }],
-                Trigo: [{ mes: 'Dic 2026', futuro: 217, strike: 220, prima: 9, piso: 208, fecha: '20/11/2026' }],
-                Maiz: [{ mes: 'Dic 2026', futuro: 194, strike: 196, prima: 7, piso: 187, fecha: '20/11/2026' }]
+                Soja: [
+                    { mes: 'Mayo 2026', futuro: 325, prima: 8, strike: 330, piso: 317, fecha: '15/05/2026' },
+                    { mes: 'Julio 2026', futuro: 329, prima: 7, strike: 332, piso: 322, fecha: '23/06/2026' },
+                    { mes: 'Noviembre 2026', futuro: 338, prima: 12, strike: 340, piso: 326, fecha: '23/10/2026' }
+                ],
+                Trigo: [
+                    { mes: 'Enero 2026', futuro: 210, prima: 6, strike: 212, piso: 204, fecha: '15/12/2025' },
+                    { mes: 'Marzo 2026', futuro: 215, prima: 8, strike: 218, piso: 207, fecha: '20/02/2026' }
+                ],
+                Maiz: [
+                    { mes: 'Abril 2026', futuro: 185, prima: 5, strike: 188, piso: 180, fecha: '15/03/2026' },
+                    { mes: 'Julio 2026', futuro: 192, prima: 7, strike: 195, piso: 185, fecha: '20/06/2026' }
+                ]
             });
-
-            useEffect(() => {
-                // Forzar carga de iconos
-                setTimeout(() => lucide.createIcons(), 500);
-            }, [activeTab, isAdmin]);
-
-            const handleUpdate = (grain, idx, field, val) => {
-                const newData = { ...marketData };
-                newData[grain][idx][field] = (field === 'mes' || field === 'fecha') ? val : parseFloat(val) || 0;
-                if (field === 'futuro' || field === 'prima') {
-                    newData[grain][idx].piso = (newData[grain][idx].futuro - newData[grain][idx].prima).toFixed(2);
-                }
-                setMarketData(newData);
-            };
 
             const operators = {
                 'Gonzalo': { name: 'Gonza', phone: '5493410000000' },
                 'Maximo': { name: 'Maximo', phone: '5492317472899' } 
             };
 
+            useEffect(() => { lucide.createIcons(); }, [activeTab, isAdmin]);
+
             return (
-                <div className="min-h-screen bg-gray-50 pb-20 font-sans">
-                    <header className="bg-white border-b-4 border-yellow-400 p-4 mb-6 sticky top-0 z-50 shadow-sm">
-                        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="min-h-screen pb-20">
+                    {/* Header Estilo Agrinter */}
+                    <header className="bg-white border-b-4 border-yellow-400 p-6 mb-8 sticky top-0 z-50 shadow-md">
+                        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                             <div className="flex items-center gap-4">
-                                <div className="bg-black text-yellow-400 w-12 h-12 flex items-center justify-center rounded font-black text-2xl shadow-lg">A</div>
+                                <div className="bg-black text-yellow-400 w-14 h-14 flex items-center justify-center rounded-lg font-black text-3xl shadow-xl italic underline decoration-yellow-400 underline-offset-4">A</div>
                                 <div>
-                                    <h1 className="text-xl font-black uppercase leading-none tracking-tight">Agrinter Cereales</h1>
-                                    <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Estrategias de Cobertura</p>
+                                    <h1 className="text-2xl font-black uppercase leading-none tracking-tighter text-slate-900 italic">Agrinter Cereales</h1>
+                                    <p className="text-[10px] text-gray-400 font-bold tracking-[0.3em] uppercase mt-1">Estrategias de Cobertura</p>
                                 </div>
                             </div>
-                            <div className="flex gap-2 bg-gray-100 p-1 rounded-full">
-                                {Object.keys(marketData).map(g => (
+                            
+                            <div className="flex gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                                {['Soja', 'Trigo', 'Maiz'].map(g => (
                                     <button key={g} onClick={() => setActiveTab(g)} 
-                                        className={`px-6 py-1.5 rounded-full text-xs font-black transition-all ${activeTab === g ? 'bg-black text-yellow-400 shadow-md' : 'text-gray-400'}`}>{g}</button>
+                                        className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all uppercase ${activeTab === g ? 'bg-black text-yellow-400 shadow-lg scale-105' : 'text-slate-400 hover:text-slate-600'}`}>{g}</button>
                                 ))}
                             </div>
                         </div>
                     </header>
 
                     <main className="max-w-6xl mx-auto px-4">
-                        <div className="flex justify-center mb-6">
-                            <div className="bg-white border p-1 rounded-xl flex gap-1 shadow-sm">
+                        {/* Selector de Operador (Imagen 2) */}
+                        <div className="flex flex-col items-center mb-10">
+                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 italic underline decoration-yellow-400 decoration-2">Consultar con:</span>
+                            <div className="bg-white border-2 border-slate-200 p-1.5 rounded-2xl flex gap-2 shadow-sm">
                                 {Object.keys(operators).map(op => (
                                     <button key={op} onClick={() => setSelectedOperator(op)}
-                                        className={`px-4 py-2 rounded-lg text-[11px] font-bold uppercase transition-all ${selectedOperator === op ? 'bg-gray-100 text-black' : 'text-gray-300'}`}>{op}</button>
+                                        className={`px-8 py-3 rounded-xl text-xs font-black transition-all uppercase ${selectedOperator === op ? 'bg-slate-900 text-white shadow-md' : 'text-slate-300 hover:bg-slate-50'}`}>{op}</button>
                                 ))}
                             </div>
                         </div>
 
-                        {isAdmin && (
-                            <div className="mb-6 bg-blue-600 text-white p-4 rounded-2xl flex justify-between items-center shadow-xl animate-pulse">
-                                <div className="font-black uppercase text-xs tracking-widest">Modo Editor: Cambiá los valores abajo</div>
-                                <button onClick={() => {setIsAdmin(false); alert("Los cambios se ven reflejados localmente. Para guardar en la nube revisa la conexión de Firebase.");}} className="bg-white text-blue-600 px-6 py-2 rounded-xl font-black text-xs uppercase">Simular Guardado</button>
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Grid de Tarjetas (Imagen 2) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
                             {marketData[activeTab].map((item, idx) => (
-                                <div key={idx} className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden transform transition-all hover:scale-[1.02]">
-                                    <div className="bg-yellow-400 px-6 py-4 flex justify-between items-center">
-                                        <span className="font-black text-[11px] uppercase italic tracking-tighter">
-                                            {isAdmin ? <input className="bg-white/30 border-none rounded px-1" value={item.mes} onChange={e => handleUpdate(activeTab, idx, 'mes', e.target.value)} /> : `COBERTURA ${activeTab} ${item.mes}`}
-                                        </span>
-                                        <i data-lucide="trending-up" className="w-4 h-4"></i>
+                                <div key={idx} className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden transform transition-all hover:scale-[1.03]">
+                                    <div className="bg-yellow-400 px-8 py-5 flex justify-between items-center border-b-4 border-black/5">
+                                        <span className="font-black text-xs uppercase italic tracking-tight">Estrategia {activeTab} {item.mes}</span>
+                                        <i data-lucide="trending-up" className="w-5 h-5 text-black/40"></i>
                                     </div>
-                                    <div className="p-8 text-center">
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">Piso Asegurado Neto</p>
-                                        <div className="text-7xl font-black text-gray-900 tracking-tighter"><span className="text-2xl mr-1 font-bold">u$d</span>{item.piso}</div>
+                                    <div className="p-10 text-center">
+                                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.25em] mb-3 italic">Piso Asegurado Neto</p>
+                                        <div className="text-7xl font-black text-slate-900 tracking-tighter leading-none flex items-center justify-center">
+                                            <span className="text-2xl mr-2 font-bold text-slate-400 italic">u$d</span>{item.piso}
+                                        </div>
                                     </div>
-                                    <div className="p-6 bg-gray-50 border-t space-y-4">
-                                        <div className="bg-white p-4 rounded-2xl border border-gray-100 space-y-3">
-                                            <div className="flex justify-between text-sm font-bold border-b pb-2">
-                                                <span className="text-gray-400 uppercase text-[10px]">Venta Futuro MtR</span>
-                                                {isAdmin ? <input type="number" className="w-16 text-right border" value={item.futuro} onChange={e => handleUpdate(activeTab, idx, 'futuro', e.target.value)} /> : <span>u$d {item.futuro}</span>}
+                                    <div className="px-8 pb-8 space-y-4">
+                                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-4">
+                                            <div className="flex justify-between text-sm font-black italic">
+                                                <span className="text-slate-400 uppercase text-[10px] tracking-widest">Venta Futuro MtR</span>
+                                                <span className="text-slate-800">u$d {item.futuro}</span>
                                             </div>
-                                            <div className="flex justify-between text-sm font-bold">
-                                                <span className="text-red-500 uppercase text-[10px]">Costo Seguro (Prima)</span>
-                                                {isAdmin ? <input type="number" className="w-16 text-right border" value={item.prima} onChange={e => handleUpdate(activeTab, idx, 'prima', e.target.value)} /> : <span className="text-red-500">- u$d {item.prima}</span>}
+                                            <div className="flex justify-between text-sm font-black italic">
+                                                <span className="text-red-500 uppercase text-[10px] tracking-widest">Costo Seguro (Prima)</span>
+                                                <span className="text-red-600">- u$d {item.prima}</span>
                                             </div>
                                         </div>
-                                        <button onClick={() => window.open(`https://wa.me/${operators[selectedOperator].phone}`, '_blank')} className="w-full bg-black text-yellow-400 py-4 rounded-2xl font-black uppercase text-xs shadow-xl flex items-center justify-center gap-2 hover:bg-gray-800 transition-all">
-                                            <i data-lucide="message-circle" className="w-5 h-5"></i> Consultar con {operators[selectedOperator].name}
+                                        <button onClick={() => window.open(`https://wa.me/${operators[selectedOperator].phone}`, '_blank')} 
+                                            className="w-full bg-black text-yellow-400 py-5 rounded-[1.5rem] font-black uppercase text-[11px] tracking-widest shadow-2xl flex items-center justify-center gap-3 hover:bg-slate-800 transition-all active:scale-95">
+                                            <i data-lucide="message-circle" className="w-5 h-5"></i> Hablar con {operators[selectedOperator].name}
                                         </button>
+                                        <p className="text-[9px] text-center font-black text-slate-300 uppercase italic tracking-tighter">Validez de oferta: {item.fecha}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
+
+                        {/* Explicación Técnica (Imagen 4) */}
+                        <section className="bg-slate-900 rounded-[3rem] p-10 md:p-16 text-white shadow-2xl mb-16 border-t-8 border-yellow-400">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="bg-yellow-400 text-black p-3 rounded-2xl"><i data-lucide="book-open" className="w-8 h-8"></i></div>
+                                <h2 className="text-3xl font-black uppercase italic tracking-tighter">¿Qué es un Put Sintético?</h2>
+                            </div>
+                            <div className="grid md:grid-cols-2 gap-12 items-center">
+                                <div className="space-y-6 text-slate-300 leading-relaxed font-medium">
+                                    <p className="text-lg italic underline decoration-yellow-400 decoration-4 underline-offset-8 mb-8">Es la estrategia de cobertura más completa para el productor argentino.</p>
+                                    <div className="flex gap-4">
+                                        <div className="text-yellow-400 font-black text-2xl italic">01.</div>
+                                        <p><strong className="text-white uppercase italic">Asegurás un precio mínimo:</strong> Vendés el futuro en MatbaRofex, garantizando un piso de ingresos ante caídas del mercado.</p>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <div className="text-yellow-400 font-black text-2xl italic">02.</div>
+                                        <p><strong className="text-white uppercase italic">Mantenés la flexibilidad:</strong> Comprás un "Call" (seguro de alza) que te permite capturar la suba si el mercado explota, sin haber entregado la mercadería física.</p>
+                                    </div>
+                                </div>
+                                <div className="bg-slate-800 p-8 rounded-[2rem] border border-slate-700 italic">
+                                    <div className="text-yellow-400 font-black text-sm uppercase mb-4 tracking-widest flex items-center gap-2">
+                                        <i data-lucide="info" className="w-4 h-4"></i> Nota de Mercado
+                                    </div>
+                                    <p className="text-slate-400 text-sm leading-loose">"Esta estrategia permite que el productor se olvide de la volatilidad. Si el precio baja, está cubierto por el futuro. Si el precio sube, el Call le devuelve la diferencia."</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Tabla Comparativa (Imagen 3) */}
+                        <section className="bg-white rounded-[3rem] shadow-xl border border-slate-200 overflow-hidden mb-20">
+                            <div className="p-8 border-b flex items-center justify-between bg-slate-50">
+                                <h2 className="text-xl font-black uppercase italic tracking-tighter">Comparativa de Estrategias</h2>
+                                <i data-lucide="table" className="w-6 h-6 text-slate-300"></i>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-slate-100 text-slate-400 text-[10px] uppercase font-black tracking-widest italic">
+                                            <th className="p-6 border-b">Concepto</th>
+                                            <th className="p-6 border-b">Venta Forward</th>
+                                            <th className="p-6 border-b text-slate-900 underline decoration-yellow-400 decoration-2">Put Sintético</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-sm font-bold italic">
+                                        <tr className="hover:bg-slate-50 transition-colors">
+                                            <td className="p-6 border-b text-slate-500 uppercase text-[11px]">Piso de Precio</td>
+                                            <td className="p-6 border-b text-slate-800">Fijo (No cambia)</td>
+                                            <td className="p-6 border-b text-green-600 bg-green-50/30 font-black italic tracking-tighter uppercase">Asegurado al 100%</td>
+                                        </tr>
+                                        <tr className="hover:bg-slate-50 transition-colors">
+                                            <td className="p-6 border-b text-slate-500 uppercase text-[11px]">Capacidad de Suba</td>
+                                            <td className="p-6 border-b text-red-500">Nula (Vendiste)</td>
+                                            <td className="p-6 border-b text-slate-900 flex items-center gap-2"><i data-lucide="zap" className="w-4 h-4 text-yellow-400 fill-yellow-400"></i> Ilimitada (vía Call)</td>
+                                        </tr>
+                                        <tr className="hover:bg-slate-50 transition-colors">
+                                            <td className="p-6 border-b text-slate-500 uppercase text-[11px]">Logística Física</td>
+                                            <td className="p-6 border-b text-slate-800">Comprometida</td>
+                                            <td className="p-6 border-b text-slate-800 uppercase italic">Libre de elegir destino</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
                     </main>
 
-                    <footer className="mt-12 text-center">
-                        <button onClick={() => setIsAdmin(!isAdmin)} className="text-[10px] text-gray-300 font-bold uppercase hover:text-yellow-600 transition-colors">
-                            {isAdmin ? "🔒 Bloquear Edición" : "📝 Activar Modo Editor"}
+                    {/* Botón Modo Editor */}
+                    <footer className="text-center">
+                        <button onClick={() => setIsAdmin(!isAdmin)} className="text-[10px] text-slate-300 font-black uppercase italic tracking-widest hover:text-slate-600 transition-all">
+                            {isAdmin ? "🔒 Bloquear Dashboard" : "📝 Abrir Panel de Gestión"}
                         </button>
                     </footer>
                 </div>
