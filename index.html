@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agrinter Cereales - Coberturas A3</title>
+    <title>Agrinter Cereales - Coberturas</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-        .shadow-card { shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .font-condensed { font-family: 'Roboto Condensed', sans-serif; }
     </style>
 </head>
-<body class="bg-[#F8F9FA] text-[#1A1D23]">
+<body class="bg-white text-slate-900">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -27,147 +27,125 @@
 
             const marketData = {
                 Soja: [
-                    { mes: 'JULIO 2026', futuro: 329, prima: 7, strike: 332, piso: 322, fecha: '23/06/2026' },
-                    { mes: 'NOV 2026', futuro: 338.5, prima: 12.5, strike: 340, piso: 326, fecha: '23/10/2026' },
-                    { mes: 'MAYO 2027', futuro: 332, prima: 17, strike: 332, piso: 315, fecha: '23/04/2027' }
+                    { mes: 'MAYO 2026', futuro: 325, prima: 8, strike: 330, piso: 317, fecha: '15/05/26' },
+                    { mes: 'JULIO 2026', futuro: 329, prima: 7, strike: 332, piso: 322, fecha: '23/06/26' },
+                    { mes: 'NOV 2026', futuro: 338, prima: 12, strike: 340, piso: 326, fecha: '23/10/26' }
                 ],
                 Trigo: [
-                    { mes: 'ENE 2026', futuro: 210, prima: 6, strike: 212, piso: 204, fecha: '15/12/2025' },
-                    { mes: 'MAR 2026', futuro: 215, prima: 8, strike: 218, piso: 207, fecha: '20/02/2026' }
+                    { mes: 'ENE 2026', futuro: 210, prima: 6, strike: 212, piso: 204, fecha: '15/12/25' },
+                    { mes: 'MAR 2026', futuro: 215, prima: 8, strike: 218, piso: 207, fecha: '20/02/26' }
                 ],
                 Maiz: [
-                    { mes: 'ABR 2026', futuro: 185, prima: 5, strike: 188, piso: 180, fecha: '15/03/2026' },
-                    { mes: 'JUL 2026', futuro: 192, prima: 7, strike: 195, piso: 185, fecha: '20/06/2026' }
+                    { mes: 'ABR 2026', futuro: 185, prima: 5, strike: 188, piso: 180, fecha: '15/03/26' },
+                    { mes: 'JUL 2026', futuro: 192, prima: 7, strike: 195, piso: 185, fecha: '20/06/26' }
                 ]
             };
 
             const operators = {
-                'Gonzalo': { name: 'GONZA', phone: '5493410000000' },
-                'Maximo': { name: 'MAXIMO', phone: '5492317472899' } 
+                'Gonzalo': { name: 'Gonza', phone: '5493410000000' },
+                'Maximo': { name: 'Maximo', phone: '5492317472899' } 
             };
 
             useEffect(() => { lucide.createIcons(); }, [activeTab]);
 
             return (
                 <div className="min-h-screen">
-                    {/* Header Institucional */}
-                    <header className="bg-white border-b border-gray-200 p-4 sticky top-0 z-50">
-                        <div className="max-w-6xl mx-auto flex justify-between items-center px-4">
+                    {/* Header Ejecutivo (Foto 1) */}
+                    <header className="bg-white border-b-2 border-slate-100 p-4 sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="bg-black text-[#FFD700] w-10 h-10 flex items-center justify-center font-black text-xl rounded">A</div>
+                                <div className="bg-slate-900 text-yellow-400 w-10 h-10 flex items-center justify-center font-black text-xl border-b-2 border-yellow-400">A</div>
                                 <div>
                                     <h1 className="text-lg font-black uppercase leading-none tracking-tight">Agrinter Cereales</h1>
-                                    <p className="text-[9px] text-gray-400 font-bold tracking-[0.2em] uppercase">Estrategias de Cobertura</p>
+                                    <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] uppercase">Estrategias de Cobertura</p>
                                 </div>
                             </div>
-                            <div className="flex bg-[#F1F3F5] p-1 rounded-full">
+                            
+                            <div className="flex bg-slate-50 p-1 rounded-full border">
                                 {['Soja', 'Trigo', 'Maiz'].map(g => (
                                     <button key={g} onClick={() => setActiveTab(g)} 
-                                        className={`px-6 py-1.5 rounded-full text-[11px] font-black uppercase transition-all ${activeTab === g ? 'bg-black text-white shadow-md' : 'text-gray-400'}`}>{g}</button>
+                                        className={`px-6 py-1.5 rounded-full text-[11px] font-bold uppercase transition-all ${activeTab === g ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>{g}</button>
                                 ))}
                             </div>
                         </div>
                     </header>
 
-                    <main className="max-w-6xl mx-auto px-4 py-8">
-                        {/* Selector Operador */}
-                        <div className="flex justify-center mb-10">
-                            <div className="flex items-center bg-white border border-gray-200 p-1 rounded-xl shadow-sm">
-                                <span className="text-[10px] font-bold text-gray-400 uppercase px-4 italic border-r">CONSULTAR CON:</span>
+                    <main className="max-w-6xl mx-auto px-4 py-10">
+                        {/* Selector Operador (Margen Derecho - Foto 1) */}
+                        <div className="flex justify-end mb-10">
+                            <div className="flex items-center gap-3 bg-white border border-slate-100 p-1.5 rounded-xl shadow-sm">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase px-2">Consultar con:</span>
                                 {Object.keys(operators).map(op => (
                                     <button key={op} onClick={() => setSelectedOperator(op)}
-                                        className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${selectedOperator === op ? 'bg-[#F8F9FA] text-black shadow-inner' : 'text-gray-300 hover:text-gray-500'}`}>{op}</button>
+                                        className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${selectedOperator === op ? 'bg-slate-100 text-slate-900 shadow-inner' : 'text-slate-300 hover:text-slate-500'}`}>{op}</button>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Grid de Coberturas - Formato Imagen 2 */}
+                        {/* Grid de Coberturas (Mix: Estructura Foto 3 + Datos Foto Amarillo) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
                             {marketData[activeTab].map((item, idx) => (
-                                <div key={idx} className="bg-white rounded-[2rem] shadow-card flex flex-col border border-gray-100 overflow-hidden relative">
-                                    {/* Header de Tarjeta */}
-                                    <div className="bg-[#FFD700] px-6 py-4 flex justify-between items-center">
-                                        <span className="font-black text-[12px] uppercase italic tracking-tight">COBERTURA {activeTab} {item.mes}</span>
-                                        <div className="bg-black/10 px-2 py-0.5 rounded text-[9px] font-bold">AGRINTER MARKET</div>
+                                <div key={idx} className="bg-white border border-slate-100 rounded-sm shadow-sm flex flex-col transition-all hover:border-yellow-400 hover:shadow-lg">
+                                    {/* Subtítulo Sutil (Foto 3) */}
+                                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                        <span className="font-black text-[10px] uppercase tracking-wider text-slate-600">{item.mes}</span>
+                                        <div className="bg-yellow-400/10 text-yellow-700 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-tight">A3 Cobertura</div>
                                     </div>
 
-                                    <div className="p-8 flex-grow flex flex-col items-center">
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-1">Precio Piso Asegurado</p>
-                                        <div className="text-7xl font-black text-[#1A1D23] tracking-tighter flex items-baseline mb-1">
-                                            <span className="text-2xl mr-1 font-bold text-gray-400 italic">u$d</span>{item.piso}
+                                    {/* Precio Piso (Foto 3) */}
+                                    <div className="p-8 text-center border-b border-slate-100">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Precio Piso Asegurado</p>
+                                        <div className="text-6xl font-black text-slate-900 font-condensed tracking-tighter flex items-baseline justify-center">
+                                            <span className="text-xl mr-1 font-bold text-slate-400">U$D</span>{item.piso}
                                         </div>
-                                        <p className="text-[10px] font-bold text-gray-400 italic mb-8">Válido hasta el {item.fecha}</p>
+                                        <p className="text-[9px] font-bold text-slate-300 uppercase italic mt-1 tracking-tighter">Vence: {item.fecha}</p>
+                                    </div>
 
-                                        {/* Detalle Técnico con Iconos */}
-                                        <div className="w-full space-y-4 mb-8">
-                                            <div className="flex justify-between items-center text-[12px] border-b border-gray-100 pb-3">
-                                                <span className="flex items-center gap-2 text-gray-500 font-medium">
+                                    {/* Detalle Técnico Detallado (Como en tarjeta amarilla) */}
+                                    <div className="p-6 space-y-4">
+                                        <div className="bg-white border border-slate-100 p-5 rounded-lg space-y-4">
+                                            <div className="flex justify-between items-center text-xs font-bold border-b border-slate-100 pb-3">
+                                                <span className="flex items-center gap-2 text-slate-500 uppercase text-[9px] tracking-widest">
                                                     <i data-lucide="arrow-down-circle" className="w-4 h-4"></i> Venta Futuro
                                                 </span>
-                                                <span className="font-black">u$d {item.futuro}</span>
+                                                <span className="text-slate-800 font-condensed font-bold">U$D {item.futuro}</span>
                                             </div>
-                                            <div className="flex justify-between items-center text-[12px] border-b border-gray-100 pb-3">
-                                                <span className="flex items-center gap-2 text-[#E03131] font-medium">
-                                                    <i data-lucide="alert-circle" className="w-4 h-4 text-[#E03131]"></i> Costo Seguro (Prima)
+                                            <div className="flex justify-between items-center text-xs font-bold border-b border-slate-100 pb-3">
+                                                <span className="flex items-center gap-2 text-red-500 uppercase text-[9px] tracking-widest">
+                                                    <i data-lucide="alert-circle" className="w-4 h-4"></i> Costo Seguro (Prima)
                                                 </span>
-                                                <span className="font-black text-[#E03131]">- u$d {item.prima}</span>
+                                                <span className="text-red-600 font-condensed font-bold">- U$D {item.prima}</span>
                                             </div>
-                                            <div className="flex justify-between items-center text-[12px] pb-1">
-                                                <span className="flex items-center gap-2 text-[#099268] font-medium">
-                                                    <i data-lucide="trending-up" className="w-4 h-4 text-[#099268]"></i> Acompaña suba desde
+                                            <div className="flex justify-between items-center text-xs font-bold">
+                                                <span className="flex items-center gap-2 text-green-600 uppercase text-[9px] tracking-widest">
+                                                    <i data-lucide="trending-up" className="w-4 h-4"></i> Acompaña suba desde
                                                 </span>
-                                                <span className="font-black text-[#099268]">u$d {item.strike}</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Simulador de Resultado */}
-                                        <div className="w-full bg-[#F8F9FA] rounded-2xl p-5 border border-gray-100 mb-8">
-                                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest text-center mb-4 italic">Simulador de Resultado</p>
-                                            <div className="space-y-4">
-                                                <div className="flex items-center justify-between gap-4">
-                                                    <span className="text-[10px] font-black text-gray-600 uppercase whitespace-nowrap italic w-24">Si baja a $300</span>
-                                                    <div className="flex-grow bg-gray-200 h-2.5 rounded-full overflow-hidden">
-                                                        <div className="bg-[#E03131] h-full w-[65%]"></div>
-                                                    </div>
-                                                    <span className="text-[12px] font-black text-[#E03131] w-12 text-right">${item.piso}</span>
-                                                </div>
-                                                <div className="flex items-center justify-between gap-4">
-                                                    <span className="text-[10px] font-black text-gray-600 uppercase whitespace-nowrap italic w-24">Si sube a $400</span>
-                                                    <div className="flex-grow bg-gray-200 h-2.5 rounded-full overflow-hidden">
-                                                        <div className="bg-[#099268] h-full w-[85%]"></div>
-                                                    </div>
-                                                    <span className="text-[12px] font-black text-[#099268] w-12 text-right">${item.piso + (400 - item.strike)}</span>
-                                                </div>
+                                                <span className="text-green-700 font-condensed font-bold">U$D {item.strike}</span>
                                             </div>
                                         </div>
 
                                         <button onClick={() => window.open(`https://wa.me/${operators[selectedOperator].phone}`, '_blank')} 
-                                            className="w-full bg-black text-white py-4 rounded-xl font-black uppercase text-[11px] tracking-[0.1em] shadow-xl flex items-center justify-center gap-3 hover:bg-[#1A1D23] transition-all">
-                                            <i data-lucide="message-circle" className="w-4 h-4 text-[#FFD700]"></i> CONSULTAR CON {operators[selectedOperator].name}
+                                            className="w-full bg-slate-900 text-white py-4 font-black uppercase text-[10px] tracking-[0.2em] shadow-md flex items-center justify-center gap-2 hover:bg-yellow-400 hover:text-slate-900 transition-all">
+                                            <i data-lucide="message-circle" className="w-4 h-4 text-yellow-400"></i> Operar con {operators[selectedOperator].name}
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Seguro de Precio Banner */}
-                        <section className="bg-[#1A1D23] rounded-[2.5rem] p-10 text-white shadow-2xl mb-16 relative overflow-hidden">
-                             <div className="relative z-10">
-                                <h2 className="text-xl font-black uppercase tracking-tight mb-4 flex items-center gap-3 italic">
-                                    <i data-lucide="shield-check" className="text-[#FFD700]"></i> Seguro de Precio (Put Sintético)
-                                </h2>
-                                <p className="text-gray-400 text-sm leading-relaxed max-w-3xl">
-                                    Asegure hoy un <strong className="text-white">valor mínimo</strong> para su producción manteniendo el beneficio si el precio del grano sube. Es la herramienta más segura para proteger su rentabilidad frente a la volatilidad.
-                                </p>
-                            </div>
-                            <div className="absolute top-0 right-0 p-8 opacity-5">
-                                <i data-lucide="bar-chart-3" className="w-32 h-32 text-white"></i>
-                            </div>
+                        {/* Banner Informativo Sobrio (Mix) */}
+                        <section className="bg-slate-900 rounded-sm p-12 text-slate-100 shadow-xl mb-12 border-l-4 border-yellow-400">
+                            <h2 className="text-xl font-black uppercase tracking-tight mb-4 flex items-center gap-3">
+                                <i data-lucide="shield-check" className="text-yellow-400"></i> Put Sintético A3: Seguridad y Flexibilidad
+                            </h2>
+                            <p className="text-slate-400 text-sm leading-relaxed max-w-4xl italic">
+                                Asegure hoy mismo un precio mínimo garantizado para su producción, manteniendo abierta la posibilidad de capturar cualquier alza del mercado. Operar en A3 Mercados le permite flexibilizar su logística comercial sin entregar físicamente la mercadería física.
+                            </p>
                         </section>
                     </main>
 
                     <footer className="py-8 text-center bg-white border-t">
-                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-[0.4em] italic">AGRINTER CEREALES</p>
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] italic">AGRINTER CEREALES</p>
                     </footer>
                 </div>
             );
