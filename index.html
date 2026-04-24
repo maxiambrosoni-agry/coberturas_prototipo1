@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agrinter Cereales - Coberturas</title>
+    <title>Agrinter Cereales - Coberturas A3</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .font-condensed { font-family: 'Roboto Condensed', sans-serif; }
     </style>
@@ -50,7 +50,6 @@
 
             return (
                 <div className="min-h-screen">
-                    {/* Header Institucional */}
                     <header className="bg-white border-b-2 border-slate-200 p-4 sticky top-0 z-50 shadow-sm">
                         <div className="max-w-6xl mx-auto flex justify-between items-center">
                             <div className="flex items-center gap-3">
@@ -60,7 +59,6 @@
                                     <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] uppercase">Estrategias de Cobertura</p>
                                 </div>
                             </div>
-                            
                             <div className="flex bg-slate-100 p-1 rounded-sm border border-slate-200">
                                 {['Soja', 'Trigo', 'Maiz'].map(g => (
                                     <button key={g} onClick={() => setActiveTab(g)} 
@@ -70,92 +68,96 @@
                         </div>
                     </header>
 
-                    <main className="max-w-6xl mx-auto px-4 py-10">
-                        {/* Selector Operador - Margen Derecho */}
-                        <div className="flex justify-end mb-8">
+                    <main className="max-w-6xl mx-auto px-4 py-8">
+                        <div className="flex justify-end mb-6">
                             <div className="flex items-center gap-3 bg-white border border-slate-200 p-1 rounded-sm">
-                                <span className="text-[9px] font-bold text-slate-400 uppercase px-2 italic">Consultar con:</span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase px-2">Consultar con:</span>
                                 {Object.keys(operators).map(op => (
                                     <button key={op} onClick={() => setSelectedOperator(op)}
-                                        className={`px-4 py-1.5 rounded-sm text-[10px] font-black uppercase transition-all ${selectedOperator === op ? 'bg-slate-900 text-white' : 'text-slate-300 hover:text-slate-500'}`}>{op}</button>
+                                        className={`px-4 py-1.5 rounded-sm text-[10px] font-black uppercase transition-all ${selectedOperator === op ? 'bg-slate-900 text-white' : 'text-slate-300'}`}>{op}</button>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Grid de Coberturas - Enfoque Comercial */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                             {marketData[activeTab].map((item, idx) => (
                                 <div key={idx} className="bg-white border-t-4 border-slate-900 shadow-lg flex flex-col transition-all hover:border-yellow-400">
                                     <div className="p-6 border-b border-slate-100">
                                         <div className="flex justify-between items-start mb-4">
                                             <span className="bg-slate-100 px-3 py-1 text-[10px] font-black text-slate-600 tracking-widest">{item.mes}</span>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase italic tracking-tighter">Válido: {item.fecha}</span>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase italic">Vence: {item.fecha}</span>
                                         </div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Precio Piso Asegurado</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Precio Mínimo de Venta</p>
                                         <div className="text-6xl font-black text-slate-900 font-condensed tracking-tighter flex items-baseline">
-                                            <span className="text-xl mr-1 font-bold">U$D</span>{item.piso}
+                                            <span className="text-xl mr-1 font-bold text-slate-400">U$D</span>{item.piso}
                                         </div>
                                     </div>
 
-                                    <div className="p-6 bg-slate-50 flex-grow space-y-4">
-                                        <div className="flex justify-between text-xs font-bold border-b border-slate-200 pb-2">
-                                            <span className="text-slate-400 uppercase tracking-widest text-[9px]">Costo de Estructura</span>
-                                            <span className="text-red-600">U$D {item.prima} / tn</span>
+                                    <div className="p-6 bg-slate-50 space-y-4">
+                                        <div className="bg-white border border-slate-200 p-4 space-y-3">
+                                            <div className="flex justify-between text-[11px] font-bold">
+                                                <span className="text-slate-400 uppercase">Si el precio baja a U$D {item.futuro - 50}</span>
+                                                <span className="text-slate-900 italic">Cobrás U$D {item.piso}</span>
+                                            </div>
+                                            <div className="flex justify-between text-[11px] font-bold border-t pt-2">
+                                                <span className="text-slate-400 uppercase">Si el precio sube a U$D {item.futuro + 50}</span>
+                                                <span className="text-green-600 italic">Cobrás U$D {item.piso + 50}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-between text-[10px] font-bold uppercase pb-2">
+                                            <span className="text-slate-400">Costo de Seguro</span>
+                                            <span className="text-red-600 font-black italic">U$D {item.prima} / tn</span>
                                         </div>
                                         <button onClick={() => window.open(`https://wa.me/${operators[selectedOperator].phone}`, '_blank')} 
-                                            className="w-full bg-slate-900 text-white py-4 font-black uppercase text-[10px] tracking-[0.2em] shadow-md flex items-center justify-center gap-2 hover:bg-yellow-400 hover:text-slate-900 transition-all active:scale-95">
-                                            <i data-lucide="message-circle" className="w-4 h-4"></i> Operar con {operators[selectedOperator].name}
+                                            className="w-full bg-slate-900 text-white py-4 font-black uppercase text-[10px] tracking-[0.2em] shadow-md flex items-center justify-center gap-2 hover:bg-yellow-400 hover:text-slate-900 transition-all">
+                                            <i data-lucide="message-circle" className="w-4 h-4"></i> Consultar con {operators[selectedOperator].name}
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Explicación Técnica - Estilo Reporte */}
-                        <section className="border-l-4 border-yellow-400 bg-white p-8 md:p-12 shadow-sm mb-12">
-                            <h2 className="text-2xl font-black uppercase tracking-tight mb-6 flex items-center gap-3">
-                                <i data-lucide="info" className="text-yellow-400"></i> ¿Por qué Put Sintético?
+                        <section className="border-l-4 border-yellow-400 bg-white p-8 shadow-sm mb-12">
+                            <h2 className="text-xl font-black uppercase tracking-tight mb-4 flex items-center gap-3 italic">
+                                <i data-lucide="shield-check" className="text-yellow-400"></i> Seguro de Precio: Put Sintético
                             </h2>
                             <div className="grid md:grid-cols-2 gap-8 text-sm leading-relaxed">
-                                <div className="space-y-4">
-                                    <p className="font-bold border-b border-slate-100 pb-2 italic">Asegurá el piso de venta hoy mismo sin comprometer el destino de tu mercadería física.</p>
-                                    <p className="text-slate-500">Esta estructura combina una venta de futuro con una opción de compra (Call), permitiéndote capturar el 100% de cualquier suba futura del mercado mientras mantenés un precio mínimo garantizado.</p>
-                                </div>
-                                <div className="bg-slate-900 text-slate-400 p-6 italic border-r-4 border-yellow-400">
-                                    "La herramienta ideal para quien necesita liquidez y seguridad, pero no quiere quedar fuera de un posible mercado alcista."
+                                <p className="text-slate-600 font-medium italic">
+                                    Esta herramienta funciona como un seguro de venta con fecha de vencimiento. Te garantiza un precio mínimo para tu mercadería, protegiéndote ante caídas del mercado, pero manteniendo abierta la posibilidad de capturar potenciales subas de precio.
+                                </p>
+                                <div className="bg-slate-50 p-6 border border-slate-100 italic text-[13px] text-slate-500">
+                                    Operando en <span className="font-bold text-slate-900 uppercase tracking-tighter">A3 Mercados</span>, el productor asegura su rentabilidad sin entregar físicamente el grano, manteniendo la libertad comercial.
                                 </div>
                             </div>
                         </section>
 
-                        {/* Tabla Comparativa - Ejecutiva */}
-                        <div className="overflow-x-auto bg-white border border-slate-200 shadow-sm">
+                        <div className="overflow-x-auto bg-white border border-slate-200 shadow-sm mb-12">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-slate-900 text-slate-100 text-[9px] uppercase font-black tracking-widest">
                                         <th className="p-4 border-r border-slate-800">Variable</th>
-                                        <th className="p-4 border-r border-slate-800 italic">Venta Forward</th>
-                                        <th className="p-4 bg-yellow-400 text-slate-900 italic">Put Sintético Agrinter</th>
+                                        <th className="p-4 border-r border-slate-800 italic text-slate-400">Venta Forward</th>
+                                        <th className="p-4 bg-yellow-400 text-slate-900 italic">Put Sintético A3</th>
                                     </tr>
                                 </thead>
-                                <tbody className="text-[11px] font-bold uppercase">
+                                <tbody className="text-[10px] font-bold uppercase italic">
                                     <tr className="border-b">
                                         <td className="p-4 bg-slate-50 text-slate-400">Flexibilidad</td>
-                                        <td className="p-4 border-r">Atada a contrato</td>
-                                        <td className="p-4 font-black">Libre disponibilidad</td>
+                                        <td className="p-4 border-r">Comprometida</td>
+                                        <td className="p-4 font-black">Libre disponibilidad Mercado A3</td>
                                     </tr>
                                     <tr className="border-b">
-                                        <td className="p-4 bg-slate-50 text-slate-400">Beneficio en Suba</td>
-                                        <td className="p-4 border-r text-red-500">Limitado</td>
-                                        <td className="p-4 text-green-600 font-black italic">Ilimitado</td>
+                                        <td className="p-4 bg-slate-50 text-slate-400">Captura de Alzas</td>
+                                        <td className="p-4 border-r text-red-500">No permite</td>
+                                        <td className="p-4 text-green-600 font-black italic">Habilitada vía Call</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </main>
 
-                    <footer className="py-10 text-center bg-slate-50 border-t">
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Agrinter Cereales - 2026</p>
-                        <button onClick={() => alert("Función de edición en desarrollo.")} className="text-[8px] text-slate-300 font-black uppercase hover:text-slate-600 transition-all">Gestión Interna</button>
+                    <footer className="py-8 text-center bg-white border-t">
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] italic">AGRINTER CEREALES</p>
                     </footer>
                 </div>
             );
