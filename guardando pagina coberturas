@@ -1,1 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agrinter Cereales - Coberturas</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        /* Optimización para evitar zoom en inputs de celular */
+        input, button { font-size: 16px !important; }
+    </style>
+</head>
+<body class="bg-white text-slate-900">
+    <div id="root"></div>
 
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('SOJA');
+            const [selectedOperator, setSelectedOperator] = useState('MAXIMO');
+
+            const marketData = {
+                SOJA: [
+                    { mes: 'MAYO 2026', futuro: 325, prima: 8, strike: 330, piso: 317, fecha: '15/05/26' },
+                    { mes: 'JULIO 2026', futuro: 329, prima: 7, strike: 332, piso: 322, fecha: '23/06/26' },
+                    { mes: 'NOV 2026', futuro: 338, prima: 12, strike: 340, piso: 326, fecha: '23/10/26' }
+                ],
+                TRIGO: [
+                    { mes: 'ENE 2026', futuro: 210, prima: 6, strike: 212, piso: 204, fecha: '15/12/25' },
+                    { mes: 'MAR 2026', futuro: 215, prima: 8, strike: 218, piso: 207, fecha: '20/02/26' }
+                ],
+                MAIZ: [
+                    { mes: 'ABR 2026', futuro: 185, prima: 5, strike: 188, piso: 180, fecha: '15/03/26' },
+                    { mes: 'JUL 2026', futuro: 192, prima: 7, strike: 195, piso: 185, fecha: '20/06/26' }
+                ]
+            };
+
+            const operators = {
+                'GONZALO': { name: 'GONZA', phone: '5493410000000' },
+                'MAXIMO': { name: 'MAXIMO', phone: '5492317472899' } 
+            };
+
+            useEffect(() => { lucide.createIcons(); }, [activeTab]);
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* Header: Adaptable a pantallas chicas */}
+                    <header className="bg-white border-b-2 border-slate-100 p-4 sticky top-0 z-50 shadow-sm">
+                        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-2">
+                            <div className="flex items-center gap-3 self-start sm:self-center">
+                                <div className="bg-slate-900 text-yellow-400 w-10 h-10 flex items-center justify-center font-black text-xl border-b-2 border-yellow-400">A</div>
+                                <div>
+                                    <h1 className="text-lg font-black uppercase leading-none tracking-tight">Agrinter Cereales</h1>
+                                    <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] uppercase">Estrategias de Cobertura</p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex bg-slate-50 p-1 border w-full sm:w-auto">
+                                {['SOJA', 'TRIGO', 'MAIZ'].map(g => (
+                                    <button key={g} onClick={() => setActiveTab(g)} 
+                                        className={`flex-1 sm:flex-none px-6 py-2 text-[11px] font-bold uppercase transition-all ${activeTab === g ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-400'}`}>{g}</button>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-4 py-6 flex-grow">
+                        {/* Selector Operador: Centrado en celular, a la derecha en PC */}
+                        <div className="flex justify-center sm:justify-end mb-8">
+                            <div className="flex items-center gap-2 bg-white border border-slate-100 p-1 shadow-sm w-full sm:w-auto overflow-x-auto">
+                                <span className="text-[8px] font-bold text-slate-400 uppercase px-2 border-r whitespace-nowrap">CONSULTAR CON:</span>
+                                {Object.keys(operators).map(op => (
+                                    <button key={op} onClick={() => setSelectedOperator(op)}
+                                        className={`flex-1 sm:flex-none px-6 py-2 text-[10px] font-black uppercase transition-all ${selectedOperator === op ? 'bg-slate-900 text-white' : 'text-slate-300'}`}>{op}</button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Grid de Tarjetas: 1 columna en celular, 3 en PC */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                            {marketData[activeTab].map((item, idx) => (
+                                <div key={idx} className="bg-white border border-slate-100 shadow-sm flex flex-col transition-all active:border-yellow-400">
+                                    <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                        <span className="font-black text-[10px] uppercase tracking-wider text-slate-600">{item.mes}</span>
+                                        <div className="bg-yellow-400 text-slate-900 px-2 py-0.5 text-[8px] font-black uppercase">AGRINTER MARKET</div>
+                                    </div>
+
+                                    <div className="p-6 text-center border-b border-slate-100">
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Precio Piso Asegurado</p>
+                                        <div className="text-6xl font-black text-slate-900 flex items-baseline justify-center tracking-tighter">
+                                            <span className="text-xl mr-1 font-bold text-slate-400">U$D</span>{item.piso}
+                                        </div>
+                                        <p className="text-[9px] font-bold text-slate-300 uppercase italic mt-1">VENCE: {item.fecha}</p>
+                                    </div>
+
+                                    <div className="p-5 space-y-4">
+                                        <div className="bg-white border border-slate-50 p-4 space-y-3 text-[11px] font-bold">
+                                            <div className="flex justify-between items-center border-b border-slate-50 pb-2">
+                                                <span className="text-slate-500 uppercase text-[9px]">VENTA FUTURO</span>
+                                                <span className="text-slate-800">U$D {item.futuro}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center border-b border-slate-50 pb-2">
+                                                <span className="text-red-500 uppercase text-[9px]">COSTO SEGURO (PRIMA)</span>
+                                                <span className="text-red-600">- U$D {item.prima}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-green-600 uppercase text-[9px]">ACOMPAÑA SUBA DESDE</span>
+                                                <span className="text-green-700">U$D {item.strike}</span>
+                                            </div>
+                                        </div>
+
+                                        <button onClick={() => window.open(`https://wa.me/${operators[selectedOperator].phone}`, '_blank')} 
+                                            className="w-full bg-slate-900 text-white py-4 font-black uppercase text-[10px] tracking-[0.2em] shadow-md flex items-center justify-center gap-2 active:bg-yellow-400 active:text-slate-900 transition-all">
+                                            <i data-lucide="message-circle" className="w-4 h-4 text-yellow-400"></i> CONSULTAR CON {operators[selectedOperator].name}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Banner y Tabla: Optimización de márgenes y textos en mobile */}
+                        <section className="bg-slate-900 p-8 text-slate-100 shadow-xl mb-10 border-l-4 border-yellow-400">
+                            <h2 className="text-lg font-black uppercase mb-3 flex items-center gap-3 italic">
+                                <i data-lucide="shield-check" className="text-yellow-400"></i> Put Sintético: Seguridad A3
+                            </h2>
+                            <p className="text-slate-400 text-xs leading-relaxed italic">
+                                Asegure hoy un valor mínimo para su producción manteniendo el beneficio si el mercado sube. La herramienta más segura en A3 Mercados sin comprometer la mercadería física.
+                            </p>
+                        </section>
+
+                        <div className="overflow-x-auto bg-white border border-slate-200 mb-10">
+                            <table className="w-full text-left border-collapse min-w-[300px]">
+                                <thead>
+                                    <tr className="bg-slate-900 text-slate-100 text-[8px] uppercase font-black tracking-widest">
+                                        <th className="p-3 border-r border-slate-800">Variable</th>
+                                        <th className="p-3 bg-yellow-400 text-slate-900 italic">Put Sintético A3</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-[10px] font-bold uppercase italic">
+                                    <tr className="border-b">
+                                        <td className="p-3 bg-slate-50 text-slate-400">Flexibilidad</td>
+                                        <td className="p-3 font-black">Libre disponibilidad Mercado A3</td>
+                                    </tr>
+                                    <tr className="border-b">
+                                        <td className="p-3 bg-slate-50 text-slate-400">Captura Alzas</td>
+                                        <td className="p-3 text-green-600 font-black">Habilitada vía Call</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </main>
+
+                    <footer className="py-8 text-center bg-white border-t mt-auto">
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em] italic">AGRINTER CEREALES</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
