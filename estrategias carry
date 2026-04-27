@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGRO QUANT - Estratega de Arbitraje</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .font-mono {
+            font-family: 'JetBrains+Mono', monospace;
+        }
+        .card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .accent-emerald { color: #10b981; }
+        .accent-amber { color: #f59e0b; }
+        .bg-emerald-soft { background-color: rgba(16, 185, 129, 0.1); }
+        .bg-amber-soft { background-color: rgba(245, 158, 11, 0.1); }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <!-- Header -->
+    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center border-b border-slate-700 pb-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tighter flex items-center gap-2">
+                <span class="text-emerald-500">AGRO QUANT</span> 
+                <span class="text-slate-400 font-light">| Estratega de Arbitraje</span>
+            </h1>
+            <p class="text-slate-500 text-sm">Terminal de Inteligencia Financiera v2.5</p>
+        </div>
+        <div class="text-right mt-4 md:mt-0">
+            <div id="clock" class="text-xl font-mono font-bold text-emerald-400">00:00:00</div>
+            <div class="text-slate-500 text-xs uppercase tracking-widest">Market Live Data</div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Panel de Entradas (Inputs) -->
+        <section class="lg:col-span-4 space-y-6">
+            <div class="card rounded-xl p-6">
+                <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                    Sección Físico (Spot)
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Precio Venta Spot (u$s/tn)</label>
+                        <input type="number" id="spotPrice" value="200" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-emerald-500 font-mono transition-colors">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Comisión (%)</label>
+                            <input type="number" id="spotComm" value="2.0" step="0.1" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-emerald-500 font-mono transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Flete Evitado (u$s)</label>
+                            <input type="number" id="freightSaved" value="15" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-emerald-500 font-mono transition-colors">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card rounded-xl p-6 border-l-4 border-l-amber-500">
+                <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                    Sección Financiera
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Tasa Inversión (TEA %)</label>
+                        <input type="number" id="tea" value="45.0" step="0.5" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-amber-500 font-mono transition-colors">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Plazo (Días)</label>
+                            <input type="number" id="days" value="90" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-amber-500 font-mono transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Devaluación Esp. (%)</label>
+                            <input type="number" id="devaluation" value="5.0" step="0.1" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-amber-500 font-mono transition-colors">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card rounded-xl p-6">
+                <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                    Sección Futuro
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Precio Compra Futuro (u$s/tn)</label>
+                        <input type="number" id="futurePrice" value="225" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500 font-mono transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Gastos de Mercado (u$s/tn)</label>
+                        <input type="number" id="marketCosts" value="3.5" step="0.1" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500 font-mono transition-colors">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel de Resultados y Gráficos -->
+        <section class="lg:col-span-8 space-y-6">
+            
+            <!-- Widgets Dinámicos -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="card rounded-xl p-5 border-t-4 border-t-emerald-500 text-center">
+                    <h3 class="text-slate-500 text-xs uppercase font-bold mb-1">Tasa de Pase (TNA)</h3>
+                    <div id="tasaPase" class="text-3xl font-mono font-bold text-emerald-400">0.00%</div>
+                    <p class="text-[10px] text-slate-500 mt-2">Costo implícito de carry</p>
+                </div>
+                <div class="card rounded-xl p-5 border-t-4 border-t-blue-500 text-center">
+                    <h3 class="text-slate-500 text-xs uppercase font-bold mb-1">Spread Arbitraje</h3>
+                    <div id="spreadNeto" class="text-3xl font-mono font-bold text-blue-400">u$s 0.00</div>
+                    <p class="text-[10px] text-slate-500 mt-2">Ganancia neta x Tonelada</p>
+                </div>
+                <div class="card rounded-xl p-5 border-t-4 border-t-amber-500 text-center">
+                    <h3 class="text-slate-500 text-xs uppercase font-bold mb-1">Breakeven Futuro</h3>
+                    <div id="breakeven" class="text-3xl font-mono font-bold text-amber-400">u$s 0.00</div>
+                    <p class="text-[10px] text-slate-500 mt-2">Precio máx. de compra</p>
+                </div>
+            </div>
+
+            <!-- Gráfico -->
+            <div class="card rounded-xl p-6">
+                <h2 class="text-lg font-semibold mb-6">Comparativa de Retorno Proyectado</h2>
+                <div class="h-[300px]">
+                    <canvas id="arbitrageChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Botón IA y Resultado -->
+            <div class="space-y-4">
+                <button onclick="requestGeminiAnalysis()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                    SOLICITAR DEVOLUCIÓN DE GEMINI
+                </button>
+
+                <!-- Cuadro de Análisis IA -->
+                <div id="aiResponse" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div class="card rounded-xl p-6 border-2 border-emerald-500/30 bg-emerald-950/20">
+                        <div class="flex items-start gap-4">
+                            <div class="bg-emerald-500 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-emerald-400 font-bold mb-2">Gemini Quant Advisor</h4>
+                                <div id="aiTextContent" class="text-sm space-y-2 text-slate-300 leading-relaxed">
+                                    <!-- Dynamic AI text -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- Reloj Real Time ---
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('es-AR', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- Inicialización de Gráfico ---
+        let chart;
+        function initChart() {
+            const ctx = document.getElementById('arbitrageChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Quedarse en Grano (Spot)', 'Estrategia Agro Quant'],
+                    datasets: [{
+                        label: 'Valor Proyectado (u$s)',
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(148, 163, 184, 0.5)', // Slate 400
+                            'rgba(16, 185, 129, 0.8)'  // Emerald 500
+                        ],
+                        borderColor: [
+                            '#94a3b8',
+                            '#10b981'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Lógica de Cálculos ---
+        function calculate() {
+            // Obtener inputs
+            const spotPrice = parseFloat(document.getElementById('spotPrice').value);
+            const spotComm = parseFloat(document.getElementById('spotComm').value) / 100;
+            const freightSaved = parseFloat(document.getElementById('freightSaved').value);
+            
+            const tea = parseFloat(document.getElementById('tea').value) / 100;
+            const days = parseInt(document.getElementById('days').value);
+            const dev = parseFloat(document.getElementById('devaluation').value) / 100;
+            
+            const futurePrice = parseFloat(document.getElementById('futurePrice').value);
+            const marketCosts = parseFloat(document.getElementById('marketCosts').value);
+
+            // 1. Ingreso Neto Spot hoy (u$s)
+            // Se asume que el spot es lo que recibes si vendes hoy
+            const spotNetoHoy = (spotPrice * (1 - spotComm)) + freightSaved;
+
+            // 2. Resultado Financiero de invertir ese dinero (u$s)
+            // Calculamos interés compuesto: VF = VP * (1 + TEA)^(dias/365)
+            const valorFuturoDinero = spotNetoHoy * Math.pow((1 + tea), (days / 365));
+
+            // 3. Costo Neto de re-comprar el Grano a Futuro (u$s)
+            const costoFuturoNeto = futurePrice + marketCosts;
+
+            // 4. Tasa de Pase (TNA Implícita entre Spot y Futuro)
+            // (Precio Futuro / Precio Spot Neto - 1) * (365 / dias)
+            const tasaPaseTNA = ((futurePrice / spotNetoHoy) - 1) * (365 / days) * 100;
+
+            // 5. Spread de Arbitraje (Ganancia neta final)
+            const spread = valorFuturoDinero - costoFuturoNeto;
+
+            // 6. Breakeven (Precio máximo del futuro para no perder)
+            // Breakeven = Valor Proyectado Dinero - Gastos Mercado
+            const be = valorFuturoDinero - marketCosts;
+
+            // Actualizar UI
+            document.getElementById('tasaPase').textContent = tasaPaseTNA.toFixed(2) + '%';
+            document.getElementById('spreadNeto').textContent = 'u$s ' + spread.toFixed(2);
+            document.getElementById('breakeven').textContent = 'u$s ' + be.toFixed(2);
+
+            // Estilos dinámicos según ganancia
+            const spreadEl = document.getElementById('spreadNeto');
+            if (spread > 0) {
+                spreadEl.className = 'text-3xl font-mono font-bold text-emerald-400';
+            } else {
+                spreadEl.className = 'text-3xl font-mono font-bold text-rose-400';
+            }
+
+            // Actualizar Gráfico
+            // Comparación: El valor del grano si solo lo guardo (asumiendo estabilidad o ajuste por devaluación simple vs re-inversión)
+            // Para ser conservadores: Spot actual vs Arbitraje total
+            chart.data.datasets[0].data = [spotPrice.toFixed(2), valorFuturoDinero.toFixed(2)];
+            chart.update();
+
+            return { spread, tasaPaseTNA, tea: tea * 100 };
+        }
+
+        // --- Simulación de Análisis Gemini ---
+        function requestGeminiAnalysis() {
+            const data = calculate();
+            const aiContainer = document.getElementById('aiResponse');
+            const aiText = document.getElementById('aiTextContent');
+            
+            aiContainer.classList.remove('hidden');
+            
+            const isFavorable = data.spread > 0;
+            const diff = (data.tea - data.tasaPaseTNA).toFixed(2);
+
+            aiText.innerHTML = `
+                <p><strong>Análisis de conveniencia:</strong> <span class="${isFavorable ? 'text-emerald-400' : 'text-rose-400'} font-bold">${isFavorable ? 'ALTAMENTE FAVORABLE' : 'NO FAVORABLE'}</span></p>
+                <p><strong>Explicación:</strong> Si la tasa de inversión financiera (${data.tea.toFixed(1)}% TEA) supera el costo del pase del grano (${data.tasaPaseTNA.toFixed(1)}% TNA) en ${diff} puntos, la operación es óptima. En este caso, estás capturando un arbitraje positivo al vender en el mercado spot, colocar el capital a interés y recomprar una posición futura más barata que el capital final acumulado.</p>
+                <p class="mt-2 text-amber-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mb-1 mr-1"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg> 
+                <strong>Riesgo detectado:</strong> Volatilidad en la brecha cambiaria y posibles ajustes en las retenciones que podrían alterar el precio del futuro antes del cierre de posición.</p>
+            `;
+        }
+
+        // Event Listeners
+        const inputs = ['spotPrice', 'spotComm', 'freightSaved', 'tea', 'days', 'devaluation', 'futurePrice', 'marketCosts'];
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+
+        // Inicio
+        window.onload = () => {
+            initChart();
+            calculate();
+        };
+
+    </script>
+</body>
+</html>
