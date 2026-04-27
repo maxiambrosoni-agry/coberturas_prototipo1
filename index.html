@@ -3,202 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agrinter - Terminal de Estrategias</title>
+    <title>Agrinter Cereales - Terminal Unificada</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #F8FAFC; /* Gris muy tenue tipo FinLift */
-            color: #1E293B;
-        }
-
-        .finlift-card {
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
-            transition: all 0.3s ease;
-        }
-
-        .finlift-card:hover {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            background-color: #059669; /* Verde Esmeralda Agrinter */
-            transition: all 0.2s;
-        }
-
-        .btn-primary:hover {
-            background-color: #047857;
-            transform: scale(1.02);
-        }
-
-        /* Ocultar flechas de inputs numéricos */
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #f8fafc; }
+        .bg-agrinter { background-color: #0f172a; }
+        .text-yellow-agrinter { color: #facc15; }
+        .border-yellow-agrinter { border-color: #facc15; }
+        .hover-yellow:hover { color: #facc15; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect } = React;
 
         const App = () => {
-            const [activeTab, setActiveTab] = useState('SOJA');
-            const [arbitrajeData, setArbitrajeData] = useState({ spot: 187, tea: 45, futuro: 195 });
+            const [activeView, setActiveView] = useState('COBERTURAS');
+            const [activeGrain, setActiveGrain] = useState('SOJA');
 
-            const marketData = {
-                SOJA: { mes: 'JULIO 2026', futuro: 329, prima: 7, strike: 332, piso: 322 },
-                TRIGO: { mes: 'ENE 2026', futuro: 210, prima: 6, strike: 212, piso: 204 },
-                MAIZ: { mes: 'ABR 2026', futuro: 185, prima: 5, strike: 188, piso: 180 }
-            };
+            // Data simulada para el Ticker superior
+            const ticker = [
+                { s: "SOJA MAY26", v: "325.5", d: "+1.2" },
+                { s: "MAIZ JUL26", v: "189.0", d: "-0.5" },
+                { s: "TRIGO ENE26", v: "212.0", d: "+0.8" },
+                { s: "DLR MAYORISTA", v: "885.4", d: "+0.2" }
+            ];
 
-            const calculateArbitraje = () => {
-                const days = 90;
-                const valorFinal = arbitrajeData.spot * Math.pow((1 + arbitrajeData.tea/100), (days/365));
-                const spread = valorFinal - arbitrajeData.futuro;
-                return { spread: spread.toFixed(2), pase: (((arbitrajeData.futuro / arbitrajeData.spot) - 1) * (365 / days) * 100).toFixed(1) };
-            };
-
-            const arb = calculateArbitraje();
+            useEffect(() => { lucide.createIcons(); }, [activeView, activeGrain]);
 
             return (
-                <div className="min-h-screen pb-20">
-                    {/* Header Estilo FinLift */}
-                    <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100 px-6 py-4">
-                        <div className="max-w-5xl mx-auto flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <img src="https://i.ibb.co/pLpM8S8/logo-agrinter-nuevo.jpg" alt="Logo" className="h-10 rounded-lg" />
-                                <span className="font-extrabold text-xl tracking-tight text-slate-800">AGRO QUANT</span>
-                            </div>
-                            <div className="hidden md:flex gap-6 text-sm font-semibold text-slate-500">
-                                <a href="#" className="text-emerald-600">Coberturas</a>
-                                <a href="#arbitraje">Estrategias</a>
-                                <a href="#">Mercado</a>
-                            </div>
-                        </div>
-                    </nav>
-
-                    <main className="max-w-5xl mx-auto px-6 mt-12">
-                        {/* Título Principal */}
-                        <div className="text-center mb-12">
-                            <h2 className="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Decisiones Inteligentes</h2>
-                            <p className="text-slate-500 max-w-lg mx-auto">Gestioná el riesgo de tu producción con herramientas financieras de alta precisión.</p>
-                        </div>
-
-                        {/* Selector de Granos - Minimalista */}
-                        <div className="flex justify-center gap-2 mb-10">
-                            {['SOJA', 'TRIGO', 'MAIZ'].map(g => (
-                                <button key={g} onClick={() => setActiveTab(g)}
-                                    className={`px-8 py-3 rounded-full text-xs font-bold transition-all ${activeTab === g ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'}`}>
-                                    {g}
-                                </button>
+                <div className="min-h-screen flex flex-col">
+                    {/* TOP TICKER BAR */}
+                    <div className="bg-slate-900 text-white overflow-hidden py-1 border-b border-slate-700">
+                        <div className="flex animate-marquee whitespace-nowrap gap-8 px-4 text-[10px] font-mono">
+                            {ticker.map((t, i) => (
+                                <span key={i}>
+                                    <b className="text-slate-400">{t.s}</b> {t.v} 
+                                    <span className={t.d.includes('+') ? 'text-green-400' : 'text-red-400'}> ({t.d})</span>
+                                </span>
                             ))}
                         </div>
+                    </div>
 
-                        {/* Tarjetas de Cobertura */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-                            <div className="finlift-card p-10">
-                                <div className="flex justify-between items-start mb-10">
-                                    <div className="bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-[10px] font-bold">PUT SINTÉTICO</div>
-                                    <span className="text-slate-400 text-xs font-bold uppercase">{marketData[activeTab].mes}</span>
+                    {/* HEADER ORIGINAL ESTILIZADO */}
+                    <header className="bg-white border-b-2 border-slate-100 sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-slate-900 text-yellow-400 w-10 h-10 flex items-center justify-center font-black text-xl border-b-2 border-yellow-400 shadow-md">A</div>
+                                <div>
+                                    <h1 className="text-xl font-black uppercase leading-none tracking-tighter">Agrinter Cereales</h1>
+                                    <p className="text-[9px] text-slate-400 font-bold tracking-[0.2em] uppercase">Soluciones Agro-Financieras</p>
                                 </div>
-                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Precio Piso Asegurado</p>
-                                <div className="text-7xl font-extrabold text-slate-900 mb-8 tracking-tighter">
-                                    <span className="text-2xl text-slate-300 mr-2">u$s</span>{marketData[activeTab].piso}
-                                </div>
-                                <div className="space-y-4 border-t border-slate-50 pt-8">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-slate-400">Venta Futuro</span>
-                                        <span className="font-bold">u$s {marketData[activeTab].futuro}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-slate-400">Costo Prima</span>
-                                        <span className="text-rose-500 font-bold">- u$s {marketData[activeTab].prima}</span>
-                                    </div>
-                                </div>
-                                <button className="btn-primary w-full text-white mt-10 py-4 rounded-2xl font-bold text-sm shadow-lg shadow-emerald-200">
-                                    CONSULTAR POSICIÓN
-                                </button>
                             </div>
-
-                            <div className="bg-slate-900 rounded-[32px] p-10 text-white flex flex-col justify-center relative overflow-hidden">
-                                <div className="relative z-10">
-                                    <h3 className="text-2xl font-bold mb-4">¿Por qué cubrirse hoy?</h3>
-                                    <p className="text-slate-400 leading-relaxed mb-8">El Put Sintético te permite fijar un piso de venta sin entregar mercadería, manteniendo la posibilidad de ganar si el mercado sube.</p>
-                                    <ul className="space-y-3 text-sm">
-                                        <li className="flex gap-2"> <span className="text-emerald-400">✔</span> Flexibilidad absoluta de entrega.</li>
-                                        <li className="flex gap-2"> <span className="text-emerald-400">✔</span> Sin riesgo de margen (Margin Call).</li>
-                                        <li className="flex gap-2"> <span className="text-emerald-400">✔</span> Liquidez inmediata en MatbaRofex.</li>
-                                    </ul>
-                                </div>
-                                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
-                            </div>
+                            
+                            {/* NAVEGACIÓN DE SUBSITIOS */}
+                            <nav className="flex flex-wrap justify-center gap-1">
+                                {['COBERTURAS', 'MERCADOS', 'INFORMES', 'INSUMOS', 'LOGISTICA'].map(v => (
+                                    <button key={v} onClick={() => setActiveView(v)}
+                                        className={`px-4 py-2 text-[10px] font-black tracking-widest transition-all ${activeView === v ? 'bg-slate-900 text-yellow-400' : 'text-slate-400 hover:text-slate-900'}`}>
+                                        {v}
+                                    </button>
+                                ))}
+                            </nav>
                         </div>
+                    </header>
 
-                        {/* Sección Arbitraje - Estilo "Clean Calculator" */}
-                        <section id="arbitraje" className="border-t border-slate-200 pt-20">
-                            <div className="mb-12">
-                                <h2 className="text-3xl font-bold text-slate-900">Calculadora de Arbitraje</h2>
-                                <p className="text-slate-500">¿Vender físico hoy o esperar? Analizá el costo de oportunidad.</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-                                <div className="space-y-6">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-400 uppercase">Maíz Spot (u$s)</label>
-                                        <input type="number" value={arbitrajeData.spot} 
-                                            onChange={(e) => setArbitrajeData({...arbitrajeData, spot: e.target.value})}
-                                            className="w-full bg-white border border-slate-200 rounded-2xl p-4 font-bold text-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                    <main className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+                        
+                        {/* RENDERIZADO CONDICIONAL DE CONTENIDOS */}
+                        {activeView === 'COBERTURAS' && (
+                            <section className="animate-in fade-in duration-500">
+                                <div className="flex justify-between items-end mb-8 border-b border-slate-200 pb-4">
+                                    <div>
+                                        <h2 className="text-3xl font-black text-slate-900 italic uppercase">Estrategias de Precio</h2>
+                                        <p className="text-slate-500 text-xs">Asegure su margen bruto con derivados de MatbaRofex.</p>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-400 uppercase">Tasa Inversión (TEA %)</label>
-                                        <input type="number" value={arbitrajeData.tea}
-                                            onChange={(e) => setArbitrajeData({...arbitrajeData, tea: e.target.value})}
-                                            className="w-full bg-white border border-slate-200 rounded-2xl p-4 font-bold text-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-400 uppercase">Maíz Futuro (u$s)</label>
-                                        <input type="number" value={arbitrajeData.futuro}
-                                            onChange={(e) => setArbitrajeData({...arbitrajeData, futuro: e.target.value})}
-                                            className="w-full bg-white border border-slate-200 rounded-2xl p-4 font-bold text-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                                    <div className="flex bg-slate-100 p-1 rounded">
+                                        {['SOJA', 'TRIGO', 'MAIZ'].map(g => (
+                                            <button key={g} onClick={() => setActiveGrain(g)}
+                                                className={`px-6 py-2 text-[10px] font-black ${activeGrain === g ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}>{g}</button>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="finlift-card p-8 bg-emerald-50 border-emerald-100">
-                                        <p className="text-emerald-600 text-xs font-bold uppercase mb-2 tracking-widest">Resultado de Arbitraje</p>
-                                        <div className="text-5xl font-extrabold text-emerald-700">u$s {arb.spread}</div>
-                                        <p className="text-emerald-600/60 text-[10px] mt-4 leading-tight font-semibold">Ganancia neta proyectada por tonelada vendiendo hoy e invirtiendo el capital.</p>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* Aquí irían tus tarjetas de siempre, repetidas o mapeadas */}
+                                    {[1, 2, 3].map(i => (
+                                        <div key={i} className="bg-white border-t-4 border-yellow-400 shadow-xl p-6 relative group overflow-hidden">
+                                            <div className="flex justify-between mb-4">
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Posición {i === 1 ? 'MAY26' : i === 2 ? 'JUL26' : 'NOV26'}</span>
+                                                <i data-lucide="trending-up" className="w-4 h-4 text-yellow-500"></i>
+                                            </div>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Piso Asegurado</p>
+                                            <div className="text-6xl font-black text-slate-900 mb-6">32{i}</div>
+                                            <button className="w-full bg-slate-900 text-yellow-400 py-4 text-[10px] font-black tracking-widest uppercase hover:bg-yellow-400 hover:text-slate-900 transition-colors">
+                                                Operar Cobertura
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {activeView === 'MERCADOS' && (
+                            <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in slide-in-from-right duration-500">
+                                <div className="lg:col-span-2 space-y-6">
+                                    <div className="bg-slate-900 text-white p-6">
+                                        <h3 className="font-black italic mb-4">MONITOR DE ARBITRAJE SPOT/FUTURO</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="border border-slate-700 p-4">
+                                                <p className="text-[10px] text-slate-500 font-bold uppercase">Maíz Spot</p>
+                                                <p className="text-2xl font-black text-yellow-400">u$s 187.5</p>
+                                            </div>
+                                            <div className="border border-slate-700 p-4">
+                                                <p className="text-[10px] text-slate-500 font-bold uppercase">Tasa de Pase TNA</p>
+                                                <p className="text-2xl font-black text-green-400">42.5%</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="finlift-card p-8 bg-slate-50 border-slate-100">
-                                        <p className="text-slate-400 text-xs font-bold uppercase mb-2 tracking-widest">Tasa de Pase Implícita</p>
-                                        <div className="text-5xl font-extrabold text-slate-700">{arb.pase}%</div>
-                                        <p className="text-slate-400 text-[10px] mt-4 leading-tight font-semibold italic">Si tu tasa de inversión supera este valor, el negocio es rentable.</p>
-                                    </div>
-                                    <div className="md:col-span-2 bg-white border border-slate-100 rounded-[24px] p-6 text-sm text-slate-500 italic">
-                                        <span className="font-bold text-emerald-600 mr-2">✦ Gemini Insights:</span> 
-                                        {arb.spread > 0 
-                                            ? "La operación es favorable. El mercado está pagando una tasa de pase menor a la tasa de interés financiera disponible." 
-                                            : "No se recomienda el arbitraje. Es preferible mantener el grano físico ya que el pase del mercado es superior a la tasa financiera."}
+                                    <div className="bg-white border p-6 h-64 flex items-center justify-center">
+                                        <p className="text-slate-300 font-black uppercase tracking-widest">[ Gráfico de Curva de Futuros ]</p>
                                     </div>
                                 </div>
+                                <div className="space-y-4">
+                                    <h4 className="font-black text-xs uppercase border-l-4 border-yellow-400 pl-2">Análisis Técnico</h4>
+                                    {[1,2,3].map(n => (
+                                        <div key={n} className="bg-white p-4 border text-xs">
+                                            <b className="block text-slate-900">MERCADO DE CHICAGO</b>
+                                            <p className="text-slate-500">Cierre con tendencia alcista por recortes en Brasil...</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {activeView === 'INFORMES' && (
+                            <section className="space-y-6">
+                                <div className="bg-yellow-400 p-8 text-slate-900">
+                                    <h2 className="text-4xl font-black italic uppercase">Agrinter Intelligence</h2>
+                                    <p className="font-bold">Reportes exclusivos para clientes sobre clima, mercado y logística.</p>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="border-2 border-slate-900 p-6 flex justify-between items-center">
+                                        <div>
+                                            <h4 className="font-black">REPORTE SEMANAL GRANOS</h4>
+                                            <p className="text-[10px] text-slate-500 uppercase">PDF • 2.4 MB • 27/04/26</p>
+                                        </div>
+                                        <i data-lucide="download" className="w-6 h-6"></i>
+                                    </div>
+                                    <div className="border-2 border-slate-900 p-6 flex justify-between items-center">
+                                        <div>
+                                            <h4 className="font-black">ESTRATEGIA SINTÉTICOS NOV26</h4>
+                                            <p className="text-[10px] text-slate-500 uppercase">PDF • 1.1 MB • 25/04/26</p>
+                                        </div>
+                                        <i data-lucide="download" className="w-6 h-6"></i>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+
+                        {/* SECCIONES VACÍAS PARA QUE VOS COMPLETES */}
+                        {(activeView === 'INSUMOS' || activeView === 'LOGISTICA') && (
+                            <div className="h-96 border-4 border-dashed border-slate-200 flex flex-col items-center justify-center">
+                                <i data-lucide="construction" className="w-12 h-12 text-slate-300 mb-4"></i>
+                                <p className="text-slate-400 font-black uppercase tracking-widest">Módulo {activeView} en desarrollo</p>
                             </div>
-                        </section>
+                        )}
+
                     </main>
 
-                    <footer className="mt-40 text-center">
-                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.5em]">Agrinter Cereales • 2026</p>
+                    {/* FOOTER ORIGINAL */}
+                    <footer className="bg-slate-900 text-white py-12 px-4">
+                        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div>
+                                <h5 className="text-yellow-400 font-black uppercase mb-4">Agrinter Cereales</h5>
+                                <p className="text-[10px] text-slate-400 uppercase leading-relaxed font-bold tracking-wider">
+                                    Terminal de Rosario • Buenos Aires • <br/>
+                                    Operadores autorizados MatbaRofex.
+                                </p>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <h5 className="text-white font-black uppercase text-xs mb-2">Contacto Directo</h5>
+                                <button className="text-left text-[10px] font-bold text-slate-400 hover:text-yellow-400 transition-colors">MAXIMO AMBROSONI: +54 9 2317 472899</button>
+                                <button className="text-left text-[10px] font-bold text-slate-400 hover:text-yellow-400 transition-colors">GONZALO: +54 9 341 0000000</button>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em] italic mb-2">AGRO QUANT v2.5</p>
+                                <p className="text-[8px] text-slate-600 uppercase font-bold">© 2026 Todos los derechos reservados.</p>
+                            </div>
+                        </div>
                     </footer>
                 </div>
             );
