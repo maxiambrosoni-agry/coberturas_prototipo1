@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agrinter Cereales - Terminal Unificada v3.1</title>
+    <title>Agrinter Cereales - Terminal v3.2</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -11,18 +11,12 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
-        
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; overflow-x: hidden; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .animate-marquee { display: flex; width: fit-content; animation: marquee 30s linear infinite; }
-        
         .bg-agrinter { background-color: #0f172a; }
-        .text-yellow-agrinter { color: #facc15; }
-        .border-yellow-agrinter { border-color: #facc15; }
-
-        /* Estilos para inputs de rango y número para que se vean pro */
-        input[type=number]::-webkit-inner-spin-button { opacity: 1; }
-        .input-cal { border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; font-weight: 900; text-align: center; font-size: 1.25rem; width: 100%; }
+        .input-cal { border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; font-weight: 900; text-align: center; font-size: 1.25rem; width: 100%; outline: none; transition: border-color 0.2s; }
+        .input-cal:focus { border-color: #facc15; }
     </style>
 </head>
 <body>
@@ -35,52 +29,37 @@
             const [activeView, setActiveView] = useState('CALCULADORA');
             const [activeGrain, setActiveGrain] = useState('SOJA 1°');
 
-            // --- ESTADO DE LA CALCULADORA INTERACTIVA ---
+            // --- ESTADO DE LA CALCULADORA ---
             const [rinde, setRinde] = useState(33.6);
             const [precioVenta, setPrecioVenta] = useState(314.5);
             const [alquilerQq, setAlquilerQq] = useState(13);
             const [precioSojaAlquiler, setPrecioSojaAlquiler] = useState(314.5);
 
-            // Costos Fijos por Hectárea (Simulados según la imagen)
             const costosFijos = {
-                labores: 92,
-                semillas: 60,
-                fertilizantes: 51,
-                agroquimicos: 168,
-                seguro: 27,
-                cosecha: 101,
-                flete: 201
+                labores: 92, semillas: 60, fertilizantes: 51,
+                agroquimicos: 168, seguro: 27, cosecha: 101, flete: 201
             };
 
-            // --- LÓGICA DE CÁLCULO EN TIEMPO REAL ---
             const calcs = useMemo(() => {
                 const ingresoTotal = rinde * precioVenta;
                 const costoAlquiler = alquilerQq * precioSojaAlquiler;
-                const gastosDirectos = costoAlquiler + costosFijos.labores + costosFijos.semillas + costosFijos.fertilizantes + costosFijos.agroquimicos + costosFijos.seguro;
-                const gastosVenta = costosFijos.cosecha + costosFijos.flete;
-                const margen = ingresoTotal - gastosDirectos - gastosVenta;
-                const indiferencia = (gastosDirectos + gastosVenta) / precioVenta;
+                const directos = costoAlquiler + costosFijos.labores + costosFijos.semillas + costosFijos.fertilizantes + costosFijos.agroquimicos + costosFijos.seguro;
+                const venta = costosFijos.cosecha + costosFijos.flete;
+                const margen = ingresoTotal - directos - venta;
+                const indiferencia = (directos + venta) / precioVenta;
 
-                // Porcentajes para la barra
-                const pct = (val) => ((val / ingresoTotal) * 100).toFixed(1);
+                const getPct = (val) => ingresoTotal > 0 ? ((val / ingresoTotal) * 100).toFixed(1) : 0;
 
                 return {
-                    ingresoTotal,
-                    costoAlquiler,
-                    gastosDirectos,
-                    gastosVenta,
-                    margen,
+                    ingresoTotal, costoAlquiler, directos, venta, margen,
                     indiferencia: indiferencia.toFixed(1),
                     difIndif: (rinde - indiferencia).toFixed(1),
-                    p_alq: pct(costoAlquiler),
-                    p_lab: pct(costosFijos.labores),
-                    p_sem: pct(costosFijos.semillas),
-                    p_fer: pct(costosFijos.fertilizantes),
-                    p_agr: pct(costosFijos.agroquimicos),
-                    p_seg: pct(costosFijos.seguro),
-                    p_cos: pct(costosFijos.cosecha),
-                    p_fle: pct(costosFijos.flete),
-                    p_mar: pct(margen)
+                    p_alq: getPct(costoAlquiler),
+                    p_lab: getPct(costosFijos.labores),
+                    p_sem: getPct(costosFijos.semillas),
+                    p_insumos: getPct(costosFijos.fertilizantes + costosFijos.agroquimicos),
+                    p_venta: getPct(venta),
+                    p_mar: getPct(margen)
                 };
             }, [rinde, precioVenta, alquilerQq, precioSojaAlquiler]);
 
@@ -95,8 +74,8 @@
 
             return (
                 <div className="min-h-screen flex flex-col">
-                    {/* TICKER SUPERIOR */}
-                    <div className="bg-slate-900 text-white overflow-hidden py-2 border-b border-slate-700 flex">
+                    {/* TICKER */}
+                    <div className="bg-slate-900 text-white overflow-hidden py-2 border-b border-slate-700">
                         <div className="animate-marquee whitespace-nowrap gap-12 px-4 text-[11px] font-mono">
                             {[...tickerItems, ...tickerItems].map((t, i) => (
                                 <span key={i} className="flex items-center gap-2">
@@ -107,20 +86,20 @@
                         </div>
                     </div>
 
-                    {/* HEADER ORIGINAL */}
+                    {/* HEADER */}
                     <header className="bg-white border-b-2 border-slate-100 sticky top-0 z-50 shadow-sm">
                         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-3">
                                 <div className="bg-slate-900 text-yellow-400 w-12 h-12 flex items-center justify-center font-black text-2xl border-b-4 border-yellow-400">A</div>
                                 <div>
-                                    <h1 className="text-2xl font-black uppercase leading-none tracking-tighter text-slate-900">Agrinter Cereales</h1>
-                                    <p className="text-[10px] text-slate-400 font-bold tracking-[0.3em] uppercase">Intelligence & Risk Management</p>
+                                    <h1 className="text-2xl font-black uppercase tracking-tighter text-slate-900">Agrinter Cereales</h1>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase">Risk Management</p>
                                 </div>
                             </div>
-                            <nav className="flex bg-slate-50 p-1 rounded-lg border border-slate-200">
-                                {['COBERTURAS', 'MERCADOS', 'CALCULADORA', 'INFORMES'].map(v => (
+                            <nav className="flex bg-slate-50 p-1 rounded-lg">
+                                {['COBERTURAS', 'CALCULADORA', 'INFORMES'].map(v => (
                                     <button key={v} onClick={() => setActiveView(v)}
-                                        className={`px-5 py-2 text-[10px] font-black rounded-md transition-all ${activeView === v ? 'bg-slate-900 text-yellow-400 shadow-lg' : 'text-slate-500 hover:bg-slate-200'}`}>
+                                        className={`px-5 py-2 text-[10px] font-black rounded-md transition-all ${activeView === v ? 'bg-slate-900 text-yellow-400' : 'text-slate-400'}`}>
                                         {v}
                                     </button>
                                 ))}
@@ -128,20 +107,18 @@
                         </div>
                     </header>
 
-                    <main className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
-                        
-                        {/* VISTA CALCULADORA (EL FOCO PRINCIPAL) */}
+                    <main className="max-w-7xl mx-auto px-4 py-8 flex-grow">
                         {activeView === 'CALCULADORA' && (
-                            <section className="animate-in fade-in duration-500">
-                                <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="animate-in fade-in duration-500">
+                                <div className="mb-8 flex justify-between items-end">
                                     <div className="flex bg-slate-900 p-1 rounded-xl">
                                         {['MAIZ 1°', 'MAIZ TARDIO', 'SOJA 1°', 'SOJA 2°'].map(g => (
                                             <button key={g} onClick={() => setActiveGrain(g)}
-                                                className={`px-4 py-2 text-[10px] font-black rounded-lg transition-all ${activeGrain === g ? 'bg-yellow-400 text-slate-900' : 'text-slate-400 hover:text-white'}`}>{g}</button>
+                                                className={`px-4 py-2 text-[10px] font-black rounded-lg ${activeGrain === g ? 'bg-yellow-400 text-slate-900' : 'text-slate-400'}`}>{g}</button>
                                         ))}
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Margen Proyectado</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Margen Bruto</p>
                                         <h2 className={`text-4xl font-black italic ${calcs.margen >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                             {calcs.margen >= 0 ? '+' : ''}u$s {calcs.margen.toFixed(0)} <span className="text-sm font-normal text-slate-400">/ha</span>
                                         </h2>
@@ -149,149 +126,82 @@
                                 </div>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                                    {/* PANEL DE INPUTS (IZQUIERDA) */}
+                                    {/* IZQUIERDA */}
                                     <div className="lg:col-span-5 space-y-6">
                                         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="text-[10px] font-black text-slate-400 uppercase block mb-2 tracking-widest">Alquiler (qq)</label>
+                                                    <label className="text-[10px] font-black text-slate-400 uppercase block mb-2">Alquiler (qq)</label>
                                                     <input type="number" value={alquilerQq} onChange={(e) => setAlquilerQq(Number(e.target.value))} className="input-cal bg-slate-50" />
-                                                    <p className="text-[9px] text-slate-400 mt-2 font-bold uppercase text-center">= u$s {calcs.costoAlquiler.toFixed(0)}/ha</p>
                                                 </div>
                                                 <div>
-                                                    <label className="text-[10px] font-black text-slate-400 uppercase block mb-2 tracking-widest">Precio Venta</label>
+                                                    <label className="text-[10px] font-black text-slate-400 uppercase block mb-2">Precio Venta</label>
                                                     <input type="number" value={precioVenta} onChange={(e) => setPrecioVenta(Number(e.target.value))} className="input-cal bg-slate-50" />
-                                                    <p className="text-[9px] text-slate-400 mt-2 font-bold uppercase text-center">u$s / ton</p>
                                                 </div>
                                             </div>
-
                                             <div className="pt-4 border-t border-slate-100">
                                                 <div className="flex justify-between items-center mb-4">
-                                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]">Tu Rinde Estimado (qq/ha)</label>
-                                                    <span className="bg-slate-900 text-yellow-400 px-3 py-1 rounded-full text-[10px] font-black italic">Indif: {calcs.indiferencia}</span>
+                                                    <label className="text-[10px] font-black uppercase tracking-widest">Tu Rinde (qq/ha)</label>
+                                                    <span className="bg-slate-900 text-yellow-400 px-3 py-1 rounded-full text-[10px] font-black">Indif: {calcs.indiferencia}</span>
                                                 </div>
                                                 <div className="flex items-center gap-4">
-                                                    <button onClick={() => setRinde(r => Math.max(0, r - 1))} className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center font-black text-xl hover:bg-yellow-400 transition-colors">-</button>
+                                                    <button onClick={() => setRinde(r => r - 1)} className="w-12 h-12 rounded-xl bg-slate-100 font-black text-xl">-</button>
                                                     <input type="number" value={rinde} onChange={(e) => setRinde(Number(e.target.value))} className="input-cal text-3xl flex-grow" />
-                                                    <button onClick={() => setRinde(r => r + 1)} className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center font-black text-xl hover:bg-yellow-400 transition-colors">+</button>
+                                                    <button onClick={() => setRinde(r => r + 1)} className="w-12 h-12 rounded-xl bg-slate-100 font-black text-xl">+</button>
                                                 </div>
                                                 <p className={`text-center mt-4 text-[10px] font-black uppercase ${calcs.difIndif >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                                     {calcs.difIndif >= 0 ? `+${calcs.difIndif}` : calcs.difIndif} qq sobre indiferencia
                                                 </p>
                                             </div>
                                         </div>
-
-                                        <div className="bg-slate-900 p-6 rounded-3xl text-white">
-                                            <h4 className="text-[10px] font-black text-yellow-400 uppercase mb-4 tracking-widest">Gastos Directos (Cargados)</h4>
-                                            <div className="space-y-2 text-[10px] font-bold uppercase text-slate-400">
-                                                <div className="flex justify-between"><span>Labores</span><span>u$s {costosFijos.labores}</span></div>
-                                                <div className="flex justify-between border-t border-white/5 pt-2"><span>Semillas</span><span>u$s {costosFijos.semillas}</span></div>
-                                                <div className="flex justify-between border-t border-white/5 pt-2"><span>Fertilizantes</span><span>u$s {costosFijos.fertilizantes}</span></div>
-                                                <div className="flex justify-between border-t border-white/5 pt-2"><span>Agroquímicos</span><span>u$s {costosFijos.agroquimicos}</span></div>
-                                            </div>
-                                        </div>
                                     </div>
 
-                                    {/* PANEL DE RESULTADOS (DERECHA) */}
+                                    {/* DERECHA */}
                                     <div className="lg:col-span-7">
                                         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm h-full">
-                                            <div className="text-center mb-8">
-                                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">Ingreso Total</p>
-                                                <h3 className="text-6xl font-black text-slate-900 tracking-tighter italic">USD {calcs.ingresoTotal.toLocaleString()} <span className="text-lg font-normal text-slate-400">/ha</span></h3>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase mt-2">{rinde} qq x u$s {precioVenta}</p>
+                                            <div className="text-center mb-6">
+                                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Ingreso Total</p>
+                                                <h3 className="text-5xl font-black italic">USD {calcs.ingresoTotal.toLocaleString()} <span className="text-sm font-normal text-slate-400">/ha</span></h3>
                                             </div>
 
-                                            {/* BARRA DE PROPORCIONES ESTILO HENDERSEEDS */}
-                                            <div className="h-5 w-full flex rounded-full overflow-hidden mb-10 bg-slate-100 shadow-inner">
-                                                <div title="Alquiler" className="bg-indigo-500 h-full transition-all duration-500" style={{width: `${calcs.p_alq}%`}}></div>
-                                                <div title="Labores" className="bg-orange-400 h-full transition-all duration-500" style={{width: `${calcs.p_lab}%`}}></div>
-                                                <div title="Semillas" className="bg-blue-400 h-full transition-all duration-500" style={{width: `${calcs.p_sem}%`}}></div>
-                                                <div title="Insumos" className="bg-yellow-400 h-full transition-all duration-500" style={{width: `${Number(calcs.p_fer) + Number(calcs.p_agr)}%`}}></div>
-                                                <div title="Venta" className="bg-slate-400 h-full transition-all duration-500" style={{width: `${Number(calcs.p_cos) + Number(calcs.p_fle)}%`}}></div>
-                                                <div title="Margen" className="bg-green-500 h-full transition-all duration-500 flex-grow"></div>
+                                            <div className="h-5 w-full flex rounded-full overflow-hidden mb-8 bg-slate-100">
+                                                <div className="bg-indigo-500 h-full transition-all" style={{width: `${calcs.p_alq}%`}}></div>
+                                                <div className="bg-orange-400 h-full transition-all" style={{width: `${calcs.p_lab}%`}}></div>
+                                                <div className="bg-blue-400 h-full transition-all" style={{width: `${calcs.p_sem}%`}}></div>
+                                                <div className="bg-yellow-400 h-full transition-all" style={{width: `${calcs.p_insumos}%`}}></div>
+                                                <div className="bg-slate-400 h-full transition-all" style={{width: `${calcs.p_venta}%`}}></div>
+                                                <div className="bg-green-500 h-full transition-all flex-grow"></div>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                <div className="space-y-4">
-                                                    <h5 className="text-[10px] font-black text-slate-400 uppercase border-b border-slate-100 pb-2 tracking-widest">Gastos Directos (72%)</h5>
-                                                    <div className="flex justify-between text-xs font-bold uppercase">
-                                                        <span className="flex items-center gap-2"><span className="w-2 h-2 bg-indigo-500 rounded-full"></span> Alquiler</span>
-                                                        <span className="text-slate-900">u$s {calcs.costoAlquiler.toFixed(0)} <span className="text-slate-400 text-[10px] ml-1">{calcs.p_alq}%</span></span>
-                                                    </div>
-                                                    <div className="flex justify-between text-xs font-bold uppercase">
-                                                        <span className="flex items-center gap-2"><span className="w-2 h-2 bg-orange-400 rounded-full"></span> Labores</span>
-                                                        <span className="text-slate-900">u$s {costosFijos.labores} <span className="text-slate-400 text-[10px] ml-1">{calcs.p_lab}%</span></span>
-                                                    </div>
-                                                    <div className="flex justify-between text-xs font-bold uppercase">
-                                                        <span className="flex items-center gap-2"><span className="w-2 h-2 bg-blue-400 rounded-full"></span> Semillas</span>
-                                                        <span className="text-slate-900">u$s {costosFijos.semillas} <span className="text-slate-400 text-[10px] ml-1">{calcs.p_sem}%</span></span>
-                                                    </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[10px] font-bold uppercase">
+                                                <div className="space-y-3">
+                                                    <div className="flex justify-between"><span>Alquiler</span><span>u$s {calcs.costoAlquiler.toFixed(0)} ({calcs.p_alq}%)</span></div>
+                                                    <div className="flex justify-between"><span>Labores</span><span>u$s {costosFijos.labores} ({calcs.p_lab}%)</span></div>
+                                                    <div className="flex justify-between"><span>Semillas</span><span>u$s {costosFijos.semillas} ({calcs.p_sem}%)</span></div>
                                                 </div>
-
-                                                <div className="space-y-4">
-                                                    <h5 className="text-[10px] font-black text-slate-400 uppercase border-b border-slate-100 pb-2 tracking-widest">Gastos Venta / Margen</h5>
-                                                    <div className="flex justify-between text-xs font-bold uppercase">
-                                                        <span className="flex items-center gap-2"><span className="w-2 h-2 bg-slate-400 rounded-full"></span> Flete + Comerc.</span>
-                                                        <span className="text-slate-900">u$s {gastosVentaTotal = costosFijos.cosecha + costosFijos.flete} <span className="text-slate-400 text-[10px] ml-1">27%</span></span>
-                                                    </div>
-                                                    <div className="pt-4 border-t-2 border-slate-900 flex justify-between items-center">
-                                                        <span className="text-[11px] font-black text-slate-900 uppercase italic">Margen Neto</span>
-                                                        <div className="text-right">
-                                                            <p className="text-2xl font-black text-green-600 leading-none">u$s {calcs.margen.toFixed(0)}</p>
-                                                            <p className="text-[10px] font-bold text-green-600/60 uppercase">{calcs.p_mar}% de rentab.</p>
-                                                        </div>
-                                                    </div>
+                                                <div className="space-y-3 border-l md:pl-8 border-slate-100">
+                                                    <div className="flex justify-between"><span>Venta/Flete</span><span>u$s {calcs.venta} ({calcs.p_venta}%)</span></div>
+                                                    <div className="flex justify-between text-green-600 font-black text-sm pt-2 border-t"><span>Margen Neto</span><span>u$s {calcs.margen.toFixed(0)}</span></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </section>
-                        )}
-
-                        {/* COBERTURAS (ESTILO ORIGINAL 2.6) */}
-                        {activeView === 'COBERTURAS' && (
-                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 text-center">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                    {marketData[activeGrain === 'MAIZ 1°' ? 'MAIZ' : activeGrain.includes('SOJA') ? 'SOJA' : 'TRIGO'].map((item, i) => (
-                                        <div key={i} className="bg-white border border-slate-200 rounded-2xl shadow-xl p-8 flex flex-col">
-                                            <div className="flex justify-between mb-4">
-                                                <span className="text-[11px] font-black text-slate-900 bg-yellow-400 px-3 py-1 rounded-full uppercase">Posición {item.pos}</span>
-                                                <i data-lucide="shield-check" className="w-5 h-5 text-yellow-500"></i>
-                                            </div>
-                                            <p className="text-[11px] font-black text-slate-400 uppercase mb-1">Piso Garantizado</p>
-                                            <div className="text-7xl font-black text-slate-900 mb-8">{item.strike}</div>
-                                            <button className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-yellow-400 hover:text-slate-900 transition-all">Fijar Cobertura</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
+                            </div>
                         )}
                         
-                        {activeView === 'MERCADOS' && (
-                            <section className="h-96 flex items-center justify-center border-4 border-dashed border-slate-100 rounded-[3rem]">
-                                <p className="font-black uppercase text-slate-200 text-3xl tracking-[0.5em]">Mercado en Vivo</p>
-                            </section>
+                        {activeView === 'COBERTURAS' && (
+                            <div className="text-center py-20 text-slate-300 font-black uppercase tracking-[0.3em]">Cargando estrategias de cobertura...</div>
                         )}
-
+                        {activeView === 'INFORMES' && (
+                            <div className="text-center py-20 text-slate-300 font-black uppercase tracking-[0.3em]">Acceso a informes exclusivos...</div>
+                        )}
                     </main>
 
-                    <footer className="bg-slate-900 text-white py-12 px-6">
-                        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-                            <div className="md:col-span-2">
-                                <h5 className="text-yellow-400 font-black uppercase text-xl mb-6 tracking-tighter italic">Agrinter Cereales</h5>
-                                <p className="text-[11px] text-slate-400 uppercase leading-relaxed font-bold tracking-widest max-w-sm">
-                                    Terminal Rosario • Buenos Aires • Operadores autorizados MatbaRofex.
-                                </p>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <h5 className="text-white font-black uppercase text-xs mb-4 border-b border-slate-800 pb-2 italic">Contacto Directo</h5>
-                                <button className="text-left text-[11px] font-bold text-slate-400 hover:text-yellow-400 transition-colors uppercase">Maximo Ambrosoni: +54 9 2317 472899</button>
-                            </div>
-                            <div className="text-left md:text-right">
-                                <p className="text-[10px] font-black text-yellow-400 uppercase tracking-[0.4em] italic mb-2 tracking-tighter">AGRO QUANT v3.1</p>
-                                <p className="text-[9px] text-slate-600 uppercase font-bold tracking-widest">Auditoría CBOT Chicago © 2026</p>
-                            </div>
+                    <footer className="bg-slate-900 text-white py-12 px-6 mt-auto">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] font-black uppercase italic">
+                            <p className="text-yellow-400">Agrinter Cereales</p>
+                            <p className="text-slate-500 tracking-widest">Maximo Ambrosoni: +54 9 2317 472899</p>
                         </div>
                     </footer>
                 </div>
