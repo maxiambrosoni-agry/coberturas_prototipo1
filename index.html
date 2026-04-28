@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agrinter - Terminal Unificada v2.9</title>
+    <title>Agrinter - Agro Calculadora Pro v3.0</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -11,283 +11,189 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .bg-navy { background-color: #0f172a; }
-        .text-accent { color: #facc15; }
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .animate-marquee { display: flex; width: fit-content; animation: marquee 35s linear infinite; }
-        input[type="range"]::-webkit-slider-thumb { appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #0f172a; cursor: pointer; border: 2px solid #facc15; }
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f1a; color: #e2e8f0; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-dark { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: white; font-weight: 900; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useMemo } = React;
 
         const App = () => {
-            const [activeView, setActiveView] = useState('COBERTURAS');
-            const [activeGrain, setActiveGrain] = useState('SOJA');
-
-            // --- Lógica de la Calculadora (State) ---
+            const [activeView, setActiveView] = useState('AGRO-CALC');
+            
+            // --- ESTADOS DE LA CALCULADORA (Valores Iniciales) ---
             const [rinde, setRinde] = useState(33.6);
-            const [precio, setPrecio] = useState(314.5);
-            const [alquiler, setAlquiler] = useState(13);
+            const [precio, setPrecio] = useState(335);
+            const [alquilerQq, setAlquilerQq] = useState(13);
+            const [precioSojaAlquiler, setPrecioSojaAlquiler] = useState(320);
+            
+            // Gastos Directos (u$s/ha)
+            const [labores, setLabores] = useState(92);
+            const [semillas, setSemillas] = useState(60);
+            const [fertilizantes, setFertilizantes] = useState(51);
+            const [agroquimicos, setAgroquimicos] = useState(168);
+            const [seguro, setSeguro] = useState(27);
 
-            const productos = {
-                SOJA: [
-                    { pos: "MAY26", strike: 314.5, prima: 3.8, desc: "Piso Defensivo" },
-                    { pos: "JUL26", strike: 320.0, prima: 4.5, desc: "Equilibrado" },
-                    { pos: "NOV26", strike: 335.0, prima: 5.2, desc: "Agresivo" },
-                    { pos: "MAY27", strike: 310.0, prima: 6.0, desc: "Pre-Campaña" }
-                ],
-                MAIZ: [
-                    { pos: "JUL26", strike: 180.0, prima: 2.8, desc: "Seguro de Cosecha" },
-                    { pos: "SEP26", strike: 188.0, prima: 3.5, desc: "Protección Tardía" }
-                ],
-                TRIGO: [
-                    { pos: "DIC25", strike: 210.0, prima: 4.2, desc: "Piso Fino" },
-                    { pos: "ENE26", strike: 218.0, prima: 4.8, desc: "Estrategia Enero" }
-                ]
-            };
+            // Gastos de Venta
+            const [cosechaFija, setCosechaFija] = useState(101);
+            const [fleteComerc, setFleteComerc] = useState(201);
 
-            useEffect(() => { lucide.createIcons(); }, [activeView, activeGrain]);
+            // --- MOTOR DE CÁLCULO DINÁMICO ---
+            const calculations = useMemo(() => {
+                const ingresoTotal = (rinde * precio / 10); // Simplificado para visualización rápida
+                const ingresoReal = rinde * precio; 
+                
+                const costoAlquiler = alquilerQq * precioSojaAlquiler;
+                const gastosDirectosTotales = costoAlquiler + labores + semillas + fertilizantes + agroquimicos + seguro;
+                const gastosVentaTotales = cosechaFija + fleteComerc;
+                
+                const margenFinal = ingresoReal - gastosDirectosTotales - gastosVentaTotales;
+                const indiferencia = (gastosDirectosTotales + gastosVentaTotales) / precio;
+                
+                return {
+                    ingreso: ingresoReal,
+                    alquiler: costoAlquiler,
+                    directos: gastosDirectosTotales,
+                    venta: gastosVentaTotales,
+                    margen: margenFinal,
+                    indif: indiferencia.toFixed(1),
+                    diffIndif: (rinde - indiferencia).toFixed(1)
+                };
+            }, [rinde, precio, alquilerQq, precioSojaAlquiler, labores, semillas, fertilizantes, agroquimicos, seguro, cosechaFija, fleteComerc]);
+
+            useEffect(() => { lucide.createIcons(); }, [activeView, calculations]);
 
             return (
                 <div className="min-h-screen flex flex-col">
-                    
-                    {/* TICKER */}
-                    <div className="bg-slate-900 text-white py-2 overflow-hidden border-b border-slate-800">
-                        <div className="animate-marquee whitespace-nowrap gap-12 text-[10px] font-mono uppercase tracking-widest">
-                            {[1,2].map(n => (
-                                <span key={n} className="flex gap-10">
-                                    <span>SOJA MAY26: <b className="text-yellow-400">314.50</b></span>
-                                    <span>DLR MAYORISTA: 885.40</span>
-                                    <span>TRIGO ENE26: 212.00</span>
-                                    <span>MAIZ JUL26: 189.00</span>
-                                    <span className="text-green-400">● A3 MERCADOS LIVE</span>
-                                </span>
+                    <header className="p-6 border-b border-white/10 flex justify-between items-center bg-slate-900 shadow-2xl">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-yellow-400 text-black flex items-center justify-center font-black text-xl rounded-lg">A</div>
+                            <h1 className="font-black uppercase italic tracking-tighter text-white">Agrinter <span className="text-yellow-400">Calculadora Pro</span></h1>
+                        </div>
+                        <nav className="flex gap-2">
+                            {['COBERTURAS', 'AGRO-CALC', 'MERCADOS'].map(v => (
+                                <button key={v} onClick={() => setActiveView(v)}
+                                    className={`px-4 py-2 text-[10px] font-black rounded-lg transition-all ${activeView === v ? 'bg-yellow-400 text-black' : 'text-slate-500 hover:text-white'}`}>
+                                    {v}
+                                </button>
                             ))}
-                        </div>
-                    </div>
-
-                    {/* HEADER */}
-                    <header className="bg-white border-b border-slate-100 sticky top-0 z-50">
-                        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-slate-900 text-yellow-400 w-10 h-10 flex items-center justify-center font-black text-xl">A</div>
-                                <div>
-                                    <h1 className="text-xl font-black uppercase tracking-tighter italic">Agrinter Cereales</h1>
-                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Risk Management</p>
-                                </div>
-                            </div>
-                            <nav className="flex bg-slate-100 p-1 rounded-xl">
-                                {['COBERTURAS', 'MERCADOS', 'AGRO-CALC', 'INFORMES'].map(v => (
-                                    <button key={v} onClick={() => setActiveView(v)}
-                                        className={`px-4 py-2 text-[10px] font-black rounded-lg transition-all ${activeView === v ? 'bg-slate-900 text-yellow-400 shadow-lg' : 'text-slate-400 hover:text-slate-900'}`}>
-                                        {v}
-                                    </button>
-                                ))}
-                            </nav>
-                        </div>
+                        </nav>
                     </header>
 
-                    <main className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
-                        
-                        {/* VIEW: COBERTURAS */}
-                        {activeView === 'COBERTURAS' && (
-                            <section className="animate-in fade-in duration-500">
-                                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row items-center gap-8">
-                                    <div className="bg-slate-900 p-4 rounded-2xl shadow-lg shadow-yellow-400/20">
-                                        <i data-lucide="shield-check" className="w-10 h-10 text-yellow-400"></i>
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-black text-slate-900 uppercase italic">Seguros de Precio</h2>
-                                        <p className="text-slate-500 text-sm mt-1 max-w-2xl">
-                                            Proteja su rentabilidad frente a la volatilidad. Así como asegura su cultivo contra el granizo, 
-                                            asegure su precio de venta para garantizar el éxito de su campaña.
+                    <main className="max-w-7xl mx-auto px-4 py-10 w-full flex-grow">
+                        {activeView === 'AGRO-CALC' && (
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-500">
+                                
+                                {/* COLUMNA IZQUIERDA: CONTROLES */}
+                                <div className="lg:col-span-5 space-y-6">
+                                    {/* PANEL RINDE */}
+                                    <div className="glass-card rounded-[2rem] p-8 border-l-4 border-yellow-400">
+                                        <div className="flex justify-between items-center mb-6">
+                                            <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Tu Rinde Estimado</span>
+                                            <span className="bg-yellow-400/10 text-yellow-400 px-3 py-1 rounded-full text-[10px] font-black uppercase">Indif: {calculations.indif}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between gap-4">
+                                            <button onClick={() => setRinde(prev => Math.max(0, prev - 1))} className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-2xl hover:bg-white/10">-</button>
+                                            <div className="text-center">
+                                                <input type="number" value={rinde} onChange={(e) => setRinde(Number(e.target.value))} className="bg-transparent text-6xl font-black text-center w-40 outline-none" />
+                                                <p className="text-xs font-bold text-slate-500 mt-2 uppercase tracking-widest">QQ / HA</p>
+                                            </div>
+                                            <button onClick={() => setRinde(prev => prev + 1)} className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-2xl hover:bg-white/10">+</button>
+                                        </div>
+                                        <p className={`text-center mt-4 text-xs font-black uppercase ${calculations.diffIndif >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                            {calculations.diffIndif >= 0 ? `+${calculations.diffIndif}` : calculations.diffIndif} qq sobre indiferencia
                                         </p>
                                     </div>
-                                </div>
 
-                                <div className="flex justify-center mb-10">
-                                    <div className="bg-slate-200 p-1 rounded-xl flex gap-1">
-                                        {['SOJA', 'MAIZ', 'TRIGO'].map(g => (
-                                            <button key={g} onClick={() => setActiveGrain(g)}
-                                                className={`px-8 py-2 text-[10px] font-black rounded-lg transition-all ${activeGrain === g ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}>{g}</button>
-                                        ))}
+                                    {/* PANEL CONFIGURACIÓN */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="glass-card p-6 rounded-3xl">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase block mb-3">Alquiler (qq)</label>
+                                            <input type="number" value={alquilerQq} onChange={(e) => setAlquilerQq(Number(e.target.value))} className="input-dark w-full p-3 rounded-xl text-center text-lg" />
+                                        </div>
+                                        <div className="glass-card p-6 rounded-3xl">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase block mb-3">Precio Soja (u$s)</label>
+                                            <input type="number" value={precio} onChange={(e) => setPrecio(Number(e.target.value))} className="input-dark w-full p-3 rounded-xl text-center text-lg" />
+                                        </div>
+                                    </div>
+
+                                    <div className="glass-card p-6 rounded-3xl">
+                                        <h4 className="text-[10px] font-black text-yellow-400 uppercase mb-4 tracking-widest">Desglose de Costos Directos (u$s/ha)</h4>
+                                        <div className="space-y-4">
+                                            {[
+                                                {label: 'Labores', val: labores, set: setLabores},
+                                                {label: 'Semillas', val: semillas, set: setSemillas},
+                                                {label: 'Fertilizantes', val: fertilizantes, set: setFertilizantes},
+                                                {label: 'Agroquímicos', val: agroquimicos, set: setAgroquimicos}
+                                            ].map((cost, idx) => (
+                                                <div key={idx} className="flex justify-between items-center">
+                                                    <span className="text-xs font-bold text-slate-400">{cost.label}</span>
+                                                    <input type="number" value={cost.val} onChange={(e) => cost.set(Number(e.target.value))} className="input-dark w-20 p-1 rounded-lg text-center text-xs" />
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {productos[activeGrain].map((p, i) => (
-                                        <div key={i} className="bg-white rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col group">
-                                            <div className="p-6">
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <span className="bg-slate-900 text-yellow-400 text-[9px] font-black px-3 py-1 rounded-full uppercase italic">Posición {p.pos}</span>
-                                                    <i data-lucide="zap" className="w-4 h-4 text-slate-200 group-hover:text-yellow-400 transition-colors"></i>
+                                {/* COLUMNA DERECHA: RESULTADOS DINÁMICOS */}
+                                <div className="lg:col-span-7 space-y-6">
+                                    <div className="glass-card rounded-[2.5rem] p-10 relative overflow-hidden">
+                                        <div className="relative z-10">
+                                            <p className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-2 text-center">Ingreso Total Proyectado</p>
+                                            <h3 className="text-7xl font-black text-center text-white italic tracking-tighter mb-8">
+                                                USD {calculations.ingreso.toLocaleString()} <span className="text-sm font-normal text-slate-500">/ha</span>
+                                            </h3>
+                                            
+                                            {/* BARRA HENDER STYLE DINÁMICA */}
+                                            <div className="h-4 w-full flex rounded-full overflow-hidden mb-10 bg-slate-800 shadow-inner">
+                                                <div className="bg-indigo-500 h-full transition-all duration-500" style={{width: `${(calculations.alquiler/calculations.ingreso)*100}%`}}></div>
+                                                <div className="bg-orange-400 h-full transition-all duration-500" style={{width: `${((calculations.directos - calculations.alquiler)/calculations.ingreso)*100}%`}}></div>
+                                                <div className="bg-blue-500 h-full transition-all duration-500" style={{width: `${(calculations.venta/calculations.ingreso)*100}%`}}></div>
+                                                <div className="bg-green-500 h-full transition-all duration-500 flex-grow"></div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <div className="space-y-4">
+                                                    <h5 className="text-[10px] font-black text-slate-500 uppercase border-b border-white/5 pb-2">Gastos Directos</h5>
+                                                    <div className="flex justify-between text-sm"><span className="text-slate-400 italic">Alquiler</span> <span className="font-black">USD {calculations.alquiler}</span></div>
+                                                    <div className="flex justify-between text-sm"><span className="text-slate-400 italic">Otros Directos</span> <span className="font-black">USD {calculations.directos - calculations.alquiler}</span></div>
                                                 </div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Piso Garantizado</p>
-                                                <div className="text-5xl font-black text-slate-900 mb-6 tracking-tighter">u$s {p.strike}</div>
-                                                <div className="space-y-2 border-t border-slate-50 pt-4">
-                                                    <div className="flex justify-between text-[11px] font-bold">
-                                                        <span className="text-slate-400 uppercase">Costo Prima:</span>
-                                                        <span className="text-slate-900">u$s {p.prima}</span>
-                                                    </div>
+                                                <div className="space-y-4">
+                                                    <h5 className="text-[10px] font-black text-slate-500 uppercase border-b border-white/5 pb-2">Gastos de Venta / Margen</h5>
+                                                    <div className="flex justify-between text-sm"><span className="text-slate-400 italic">Cosecha + Flete</span> <span className="font-black">USD {calculations.venta}</span></div>
+                                                    <div className="flex justify-between text-sm text-green-400 font-black"><span className="italic uppercase">Margen Neto</span> <span>+USD {calculations.margen.toFixed(0)}</span></div>
                                                 </div>
                                             </div>
-                                            <button className="w-full bg-slate-900 text-white py-4 text-[10px] font-black uppercase tracking-[0.2em] group-hover:bg-yellow-400 group-hover:text-black transition-colors">Consultar</button>
                                         </div>
-                                    ))}
+                                    </div>
+                                    
+                                    <div className="bg-yellow-400 p-8 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-6 shadow-[0_20px_50px_rgba(250,204,21,0.2)]">
+                                        <div>
+                                            <p className="text-black font-black text-2xl italic leading-none uppercase">¿Aseguramos este margen?</p>
+                                            <p className="text-black/60 text-[10px] font-bold uppercase tracking-widest mt-2 text-center md:text-left">Actualmente tenés un margen del {((calculations.margen/calculations.ingreso)*100).toFixed(1)}% sobre ingreso total.</p>
+                                        </div>
+                                        <button onClick={() => setActiveView('COBERTURAS')} className="bg-black text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-105 transition-transform">
+                                            Ver Coberturas Matba
+                                        </button>
+                                    </div>
                                 </div>
-                            </section>
+                            </div>
                         )}
 
-                        {/* VIEW: AGRO-CALC (Lógica Henderseeds) */}
-                        {activeView === 'AGRO-CALC' && (
-                            <section className="animate-in fade-in duration-500 max-w-6xl mx-auto">
-                                <div className="flex justify-between items-center mb-8 bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-2xl">
-                                    <div>
-                                        <h2 className="text-2xl font-black italic uppercase tracking-tighter">Margen Bruto Proyectado</h2>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em]">Campaña 26/27 • Basado en {activeGrain}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <span className="text-4xl font-black text-green-400">+u$s 9.40 <span className="text-xs font-normal text-slate-400 uppercase tracking-widest italic">/ha</span></span>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                                    {/* INPUTS */}
-                                    <div className="lg:col-span-4 space-y-6">
-                                        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
-                                            <div className="space-y-8">
-                                                <div>
-                                                    <div className="flex justify-between mb-3 text-[11px] font-black uppercase tracking-widest text-slate-400">
-                                                        <label>Alquiler (qq {activeGrain})</label>
-                                                        <span className="text-slate-900">{alquiler}</span>
-                                                    </div>
-                                                    <input type="range" min="0" max="25" step="0.5" value={alquiler} onChange={(e) => setAlquiler(e.target.value)}
-                                                        className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer" />
-                                                </div>
-                                                <div className="grid grid-cols-1 gap-6">
-                                                    <div>
-                                                        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Precio de Venta (u$s/t)</label>
-                                                        <input type="number" value={precio} onChange={(e) => setPrecio(e.target.value)} 
-                                                            className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-lg font-black focus:border-yellow-400 focus:ring-0 transition-all outline-none" />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Tu Rinde (qq/ha)</label>
-                                                        <input type="number" value={rinde} onChange={(e) => setRinde(e.target.value)}
-                                                            className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-lg font-black focus:border-yellow-400 focus:ring-0 transition-all outline-none" />
-                                                    </div>
-                                                </div>
-                                                <div className="p-5 bg-yellow-400/5 rounded-2xl border-2 border-dashed border-yellow-400/20 text-center">
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Punto de Indiferencia</span>
-                                                    <span className="text-xl font-black text-slate-900">33.2 qq/ha</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* DASHBOARD DE RESULTADOS */}
-                                    <div className="lg:col-span-8 space-y-6">
-                                        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
-                                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Composición del Negocio</p>
-                                            <div className="h-6 w-full flex rounded-full overflow-hidden mb-8 shadow-inner bg-slate-100">
-                                                <div className="bg-indigo-600 h-full" style={{width: '37%'}}></div>
-                                                <div className="bg-orange-500 h-full" style={{width: '15%'}}></div>
-                                                <div className="bg-blue-500 h-full" style={{width: '20%'}}></div>
-                                                <div className="bg-green-500 h-full" style={{width: '2%'}}></div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                                {[
-                                                    {label: 'Alquiler', val: 'u$s 416', color: 'bg-indigo-600'},
-                                                    {label: 'Labores', val: 'u$s 152', color: 'bg-orange-500'},
-                                                    {label: 'Gastos Venta', val: 'u$s 201', color: 'bg-blue-500'},
-                                                    {label: 'Margen', val: 'u$s 9', color: 'bg-green-500'}
-                                                ].map((item, i) => (
-                                                    <div key={i} className="space-y-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className={`w-2 h-2 rounded-full ${item.color}`}></div>
-                                                            <span className="text-[9px] font-black text-slate-400 uppercase">{item.label}</span>
-                                                        </div>
-                                                        <p className="text-sm font-black text-slate-900">{item.val}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
-                                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 text-center italic">Matriz de Sensibilidad (Margen u$s/ha)</p>
-                                            <div className="overflow-x-auto">
-                                                <table className="w-full text-[10px] font-black border-separate border-spacing-2">
-                                                    <thead>
-                                                        <tr>
-                                                            <th className="p-3 text-slate-300">QQ \ USD</th>
-                                                            {[302, 314, 325, 350, 369].map(p => (
-                                                                <th key={p} className={`p-3 rounded-xl ${p === 314 ? 'bg-slate-900 text-yellow-400' : 'bg-slate-50 text-slate-400'}`}>{p}</th>
-                                                            ))}
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {[23, 28, 33, 38, 43].map((r, idx) => (
-                                                            <tr key={r}>
-                                                                <td className="bg-slate-50 p-3 rounded-xl text-slate-400">{r}</td>
-                                                                <td className="text-red-500">-311</td>
-                                                                <td className="text-red-500">-203</td>
-                                                                <td className={`p-3 rounded-xl border-2 ${r === 33 ? 'border-yellow-400 bg-yellow-400/5 text-slate-900' : 'text-slate-400 border-transparent'}`}>0</td>
-                                                                <td className="text-green-600">+81</td>
-                                                                <td className="text-green-600">+234</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
+                        {activeView === 'COBERTURAS' && (
+                            <div className="text-center py-20 opacity-50 italic">
+                                <p className="font-black uppercase tracking-[0.5em]">Módulo de Coberturas Cargando...</p>
+                            </div>
                         )}
-
-                        {/* VIEW: INFORMES */}
-                        {activeView === 'INFORMES' && (
-                            <section className="animate-in fade-in duration-500">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                    <div className="md:col-span-2 space-y-6">
-                                        <h3 className="font-black text-xl italic uppercase border-l-4 border-slate-900 pl-4 mb-8">Información Estratégica</h3>
-                                        {['USDA Report', 'A3 Mercados - Cierres', 'BCR Gea'].map((t, i) => (
-                                            <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-yellow-400 transition-all flex justify-between items-center group cursor-pointer">
-                                                <div>
-                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fuente Certificada</span>
-                                                    <h4 className="font-black text-slate-900 text-lg group-hover:text-yellow-600">{t}</h4>
-                                                </div>
-                                                <i data-lucide="download" className="w-5 h-5 text-slate-300"></i>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="bg-slate-900 p-8 rounded-[2rem] text-white">
-                                        <h4 className="text-yellow-400 font-black uppercase text-xs mb-4 italic tracking-widest">Análisis Agrinter</h4>
-                                        <p className="text-xs font-bold text-slate-400 leading-relaxed italic mb-8">"Proyectamos firmeza en la base ante la demora de cosecha en zona núcleo. Recomendamos fijar pisos Mayo26."</p>
-                                        <button className="w-full bg-white/10 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-colors">Solicitar Reporte</button>
-                                    </div>
-                                </div>
-                            </section>
-                        )}
-
                     </main>
 
-                    <footer className="bg-slate-900 text-white py-12 px-6 mt-auto">
-                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-widest">
-                            <div className="text-center md:text-left">
-                                <p className="text-yellow-400 mb-1">Agrinter Cereales</p>
-                                <p className="text-slate-500">Terminal Rosario • Buenos Aires</p>
-                            </div>
-                            <div className="flex gap-8">
-                                <span className="hover:text-yellow-400 transition-colors">Maximo Ambrosoni: +54 9 2317 472899</span>
-                            </div>
-                            <div className="text-slate-700 italic">Core_v2.9_Final</div>
-                        </div>
+                    <footer className="p-8 border-t border-white/5 text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.5em]">
+                        Agrinter Core Intelligence v3.0 • Chicago Board of Trade Certified
                     </footer>
                 </div>
             );
