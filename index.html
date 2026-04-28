@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agrinter - A3 Real-Time Terminal</title>
+    <title>Agrinter Cereales - Intelligence & Risk</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -11,18 +11,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0b0f1a; color: #e2e8f0; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        .bg-navy { background-color: #0f172a; }
+        .text-accent { color: #fbbf24; }
+        .border-accent { border-color: #fbbf24; }
         
+        /* Animación para el Ticker */
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .animate-marquee { display: flex; width: fit-content; animation: marquee 25s linear infinite; }
-        
-        /* Efecto de parpadeo para datos en tiempo real */
-        .price-up { animation: flashGreen 1s ease-out; }
-        .price-down { animation: flashRed 1s ease-out; }
-        @keyframes flashGreen { 0% { background-color: rgba(34, 197, 94, 0.4); } 100% { background-color: transparent; } }
-        @keyframes flashRed { 0% { background-color: rgba(239, 68, 68, 0.4); } 100% { background-color: transparent; } }
-
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .animate-marquee { display: flex; width: fit-content; animation: marquee 40s linear infinite; }
     </style>
 </head>
 <body>
@@ -32,64 +28,60 @@
         const { useState, useEffect } = React;
 
         const App = () => {
-            const [activeView, setActiveView] = useState('MONITOR VIVO');
-            const [prices, setPrices] = useState({
-                sojaFut: 325.50,
-                sojaPut: 4.20,
-                sojaCall: 8.50,
-                status: 'Conectado a A3'
-            });
+            const [activeView, setActiveView] = useState('COBERTURAS');
+            const [activeGrain, setActiveGrain] = useState('SOJA');
 
-            // SIMULACIÓN DE WEBSOCKET DE A3 MERCADOS
-            useEffect(() => {
-                const interval = setInterval(() => {
-                    setPrices(prev => ({
-                        ...prev,
-                        sojaFut: +(prev.sojaFut + (Math.random() - 0.5)).toFixed(2),
-                        sojaPut: +(prev.sojaPut + (Math.random() * 0.1 - 0.05)).toFixed(2),
-                        sojaCall: +(prev.sojaCall + (Math.random() * 0.1 - 0.05)).toFixed(2)
-                    }));
-                }, 3000);
-                return () => clearInterval(interval);
-            }, []);
+            // --- GESTIÓN DE PRODUCTOS (Agregá o quitá acá) ---
+            const productos = {
+                SOJA: [
+                    { pos: "MAY26", strike: 314.5, prima: 3.8, desc: "Piso Defensivo" },
+                    { pos: "JUL26", strike: 320.0, prima: 4.5, desc: "Equilibrado" },
+                    { pos: "NOV26", strike: 335.0, prima: 5.2, desc: "Agresivo" },
+                    { pos: "MAY27", strike: 310.0, prima: 6.0, desc: "Pre-Campaña" }
+                ],
+                MAIZ: [
+                    { pos: "JUL26", strike: 180.0, prima: 2.8, desc: "Seguro de Cosecha" },
+                    { pos: "SEP26", strike: 188.0, prima: 3.5, desc: "Protección Tardía" }
+                ],
+                TRIGO: [
+                    { pos: "DIC25", strike: 210.0, prima: 4.2, desc: "Piso Fino" },
+                    { pos: "ENE26", strike: 218.0, prima: 4.8, desc: "Estrategia Enero" }
+                ]
+            };
 
-            useEffect(() => { lucide.createIcons(); }, [activeView, prices]);
+            useEffect(() => { lucide.createIcons(); }, [activeView, activeGrain]);
 
             return (
                 <div className="min-h-screen flex flex-col">
                     
-                    {/* TICKER SUPERIOR */}
-                    <div className="bg-black text-yellow-400 py-2 border-b border-yellow-400/20">
-                        <div className="animate-marquee whitespace-nowrap gap-12 text-[10px] font-mono tracking-widest uppercase">
+                    {/* TICKER DE MERCADO (Información y Confianza) */}
+                    <div className="bg-slate-900 text-white py-1.5 border-b border-slate-700 overflow-hidden">
+                        <div className="animate-marquee whitespace-nowrap gap-12 text-[10px] font-mono">
                             {[1,2].map(n => (
-                                <span key={n} className="flex gap-8">
-                                    <span>SOJA MAY26: {prices.sojaFut} <span className="text-green-400">▲</span></span>
+                                <span key={n} className="flex gap-10 items-center">
+                                    <span>SOJA MAY26: <b className="text-accent">314.50</b></span>
                                     <span>DLR MAYORISTA: 885.40</span>
-                                    <span>PUT SOJA 320: {prices.sojaPut}</span>
-                                    <span>CALL SOJA 340: {prices.sojaCall}</span>
-                                    <span>MAIZ JUL26: 189.00 <span className="text-red-400">▼</span></span>
+                                    <span>TRIGO ENE26: 212.00</span>
+                                    <span>MAIZ JUL26: 189.00</span>
+                                    <span className="text-green-400">● A3 MERCADOS CONECTADO</span>
                                 </span>
                             ))}
                         </div>
                     </div>
 
-                    <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-                        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-yellow-400 text-black flex items-center justify-center font-black text-2xl shadow-[0_0_20px_rgba(250,204,21,0.3)]">A</div>
+                    <header className="bg-white shadow-sm sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-slate-900 text-accent w-10 h-10 flex items-center justify-center font-black text-xl">A</div>
                                 <div>
-                                    <h1 className="text-xl font-black uppercase tracking-tighter text-white italic">Agrinter <span className="text-yellow-400">A3 Hub</span></h1>
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em]">Mesa de Operaciones en Vivo</p>
-                                    </div>
+                                    <h1 className="text-xl font-black uppercase tracking-tighter">Agrinter Cereales</h1>
+                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Intelligence & Risk Management</p>
                                 </div>
                             </div>
-                            
-                            <nav className="flex gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
-                                {['MONITOR VIVO', 'COBERTURAS', 'ESTRATEGIA SINTETICA', 'INFORMES'].map(v => (
+                            <nav className="flex flex-wrap justify-center gap-1">
+                                {['COBERTURAS', 'MERCADOS', 'AGRO-CALC', 'INFORMES'].map(v => (
                                     <button key={v} onClick={() => setActiveView(v)}
-                                        className={`px-4 py-2 text-[10px] font-black rounded-lg transition-all ${activeView === v ? 'bg-yellow-400 text-black' : 'text-slate-400 hover:text-white'}`}>
+                                        className={`px-4 py-2 text-[10px] font-black rounded-md transition-all ${activeView === v ? 'bg-slate-900 text-accent' : 'text-slate-400 hover:bg-slate-100'}`}>
                                         {v}
                                     </button>
                                 ))}
@@ -97,156 +89,183 @@
                         </div>
                     </header>
 
-                    <main className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+                    <main className="max-w-7xl mx-auto px-4 py-10 flex-grow w-full">
                         
-                        {activeView === 'MONITOR VIVO' && (
-                            <section className="grid grid-cols-1 lg:grid-cols-4 gap-6 animate-in fade-in duration-700">
-                                {/* PANEL DE FUTUROS */}
-                                <div className="lg:col-span-3 space-y-6">
-                                    <div className="glass-panel rounded-3xl p-6 border-l-4 border-l-yellow-400">
-                                        <div className="flex justify-between items-center mb-6">
-                                            <h3 className="font-black text-white italic uppercase tracking-wider flex items-center gap-2">
-                                                <i data-lucide="activity" className="text-yellow-400 w-5 h-5"></i> Monitor A3 Mercados
-                                            </h3>
-                                            <span className="text-[10px] font-mono text-slate-500 font-bold">ACTUALIZACIÓN: CADA 3 SEG.</span>
+                        {activeView === 'COBERTURAS' && (
+                            <section className="animate-in fade-in duration-500">
+                                {/* EL MENSAJE PROFESIONAL */}
+                                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-10 flex flex-col md:flex-row items-center gap-8">
+                                    <div className="bg-slate-900 p-4 rounded-2xl">
+                                        <i data-lucide="shield-check" className="w-12 h-12 text-accent"></i>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-black text-slate-900 uppercase italic mb-2">Gestioná tu riesgo de precio</h2>
+                                        <p className="text-slate-600 text-sm leading-relaxed max-w-2xl">
+                                            Usted asegura su producción contra <b>granizo o helada</b> para proteger su capital. 
+                                            Los <b>Seguros de Precio</b> funcionan igual: aseguran su rentabilidad mínima, permitiéndole capturar subas y eliminando la incertidumbre de la volatilidad agraria.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-center mb-8">
+                                    <div className="bg-slate-200 p-1 rounded-xl flex">
+                                        {['SOJA', 'MAIZ', 'TRIGO'].map(g => (
+                                            <button key={g} onClick={() => setActiveGrain(g)}
+                                                className={`px-8 py-2 text-[10px] font-black rounded-lg transition-all ${activeGrain === g ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}>{g}</button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* TARJETAS DE PAQUETES/PRODUCTOS */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {productos[activeGrain].map((p, i) => (
+                                        <div key={i} className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col">
+                                            <div className="p-6">
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <span className="bg-slate-100 text-slate-900 text-[10px] font-black px-3 py-1 rounded-full uppercase italic">Posición {p.pos}</span>
+                                                    <i data-lucide="trending-up" className="w-4 h-4 text-slate-300"></i>
+                                                </div>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Piso Garantizado</p>
+                                                <div className="text-5xl font-black text-slate-900 mb-6 tracking-tighter">u$s {p.strike}</div>
+                                                
+                                                <div className="space-y-2 border-t border-slate-50 pt-4 mb-6">
+                                                    <div className="flex justify-between text-[11px]">
+                                                        <span className="text-slate-400 font-bold uppercase tracking-tighter">Costo de Prima:</span>
+                                                        <span className="text-slate-900 font-black">u$s {p.prima}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-[11px]">
+                                                        <span className="text-slate-400 font-bold uppercase tracking-tighter">Perfil:</span>
+                                                        <span className="text-slate-900 font-black italic">{p.desc}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button className="w-full bg-slate-900 text-accent py-4 text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-black transition-colors">
+                                                Consultar Cobertura
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {activeView === 'AGRO-CALC' && (
+                            <section className="animate-in slide-in-from-bottom-8 duration-500">
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* INPUTS - Inspirado en HenderSeeds */}
+                                    <div className="lg:col-span-1 space-y-4">
+                                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                                            <h3 className="font-black text-xs uppercase mb-6 border-l-4 border-slate-900 pl-3">Calculadora de Margen</h3>
+                                            <div className="space-y-4 font-bold text-xs">
+                                                <div>
+                                                    <label className="block text-slate-400 mb-2 uppercase">Rinde Estimado (qq/ha)</label>
+                                                    <input type="number" defaultValue="33.6" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-accent" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-slate-400 mb-2 uppercase">Precio Soja (u$s/t)</label>
+                                                    <input type="number" defaultValue="314.5" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-accent" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-slate-400 mb-2 uppercase">Alquiler (qq/ha)</label>
+                                                    <input type="number" defaultValue="13" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-accent" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* RESULTADOS VISUALES */}
+                                    <div className="lg:col-span-2 space-y-6">
+                                        <div className="bg-slate-900 rounded-3xl p-8 text-white flex justify-between items-center relative overflow-hidden">
+                                            <div className="relative z-10">
+                                                <p className="text-[10px] font-black text-accent uppercase mb-1">Margen Bruto Proyectado</p>
+                                                <p className="text-6xl font-black italic">+u$s 12 /ha</p>
+                                            </div>
+                                            <div className="bg-green-500/20 text-green-400 p-4 rounded-2xl relative z-10">
+                                                <i data-lucide="trending-up" className="w-12 h-12"></i>
+                                            </div>
+                                            <div className="absolute top-0 right-0 p-10 opacity-5">
+                                                <i data-lucide="bar-chart-3" className="w-40 h-40"></i>
+                                            </div>
                                         </div>
                                         
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left border-separate border-spacing-y-3">
+                                        {/* TABLA DE INDIFERENCIA (Versión simplificada) */}
+                                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 overflow-x-auto">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase mb-4 text-center">Matriz de Sensibilidad (u$s/ha)</p>
+                                            <table className="w-full text-[10px] font-bold text-center border-separate border-spacing-1">
                                                 <thead>
-                                                    <tr className="text-[10px] text-slate-500 font-black uppercase tracking-widest">
-                                                        <th className="px-4">Producto</th>
-                                                        <th className="px-4 text-right">Último</th>
-                                                        <th className="px-4 text-right">Bid (Compra)</th>
-                                                        <th className="px-4 text-right">Ask (Venta)</th>
-                                                        <th className="px-4 text-right">Vol</th>
+                                                    <tr>
+                                                        <th className="p-2">QQ \ USD</th>
+                                                        <th className="bg-slate-50 p-2">302</th>
+                                                        <th className="bg-slate-50 p-2">314</th>
+                                                        <th className="bg-slate-900 text-accent p-2">325</th>
+                                                        <th className="bg-slate-50 p-2">350</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="text-sm font-bold uppercase">
-                                                    <tr className="bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                                                        <td className="px-4 py-4 rounded-l-xl border-l border-white/10 italic">Soja MAY26 (Fut)</td>
-                                                        <td className={`px-4 text-right text-yellow-400 text-lg transition-all`}>{prices.sojaFut}</td>
-                                                        <td className="px-4 text-right text-slate-400">{prices.sojaFut - 0.5}</td>
-                                                        <td className="px-4 text-right text-slate-400">{prices.sojaFut + 0.5}</td>
-                                                        <td className="px-4 text-right rounded-r-xl">1.450 tn</td>
-                                                    </tr>
-                                                    <tr className="bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                                                        <td className="px-4 py-4 rounded-l-xl border-l border-white/10 italic">Call Soja 340</td>
-                                                        <td className="px-4 text-right text-green-400 text-lg">{prices.sojaCall}</td>
-                                                        <td className="px-4 text-right text-slate-400">{prices.sojaCall - 0.2}</td>
-                                                        <td className="px-4 text-right text-slate-400">{prices.sojaCall + 0.2}</td>
-                                                        <td className="px-4 text-right rounded-r-xl">850 tn</td>
-                                                    </tr>
-                                                    <tr className="bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                                                        <td className="px-4 py-4 rounded-l-xl border-l border-white/10 italic">Put Soja 310</td>
-                                                        <td className="px-4 text-right text-red-400 text-lg">{prices.sojaPut}</td>
-                                                        <td className="px-4 text-right text-slate-400">{prices.sojaPut - 0.1}</td>
-                                                        <td className="px-4 text-right text-slate-400">{prices.sojaPut + 0.1}</td>
-                                                        <td className="px-4 text-right rounded-r-xl">2.100 tn</td>
-                                                    </tr>
+                                                <tbody>
+                                                    {[28, 33, 38].map(r => (
+                                                        <tr key={r}>
+                                                            <td className="bg-slate-50 p-2">{r}</td>
+                                                            <td className="text-red-500">-81</td>
+                                                            <td className="text-red-500">-40</td>
+                                                            <td className="bg-slate-900 text-white p-2">0</td>
+                                                            <td className="text-green-600">+97</td>
+                                                        </tr>
+                                                    ))}
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="glass-panel p-6 rounded-3xl border-t-4 border-t-blue-500">
-                                            <h4 className="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest">¿Qué es el Put Sintético?</h4>
-                                            <p className="text-xs text-slate-300 leading-relaxed italic">
-                                                "Usted vende su grano físico hoy a precio de mercado y compra un CALL. Si el mercado sube, usted captura la ganancia. Si baja, ya cobró su mercadería. Es la estrategia reina de Chicago aplicada a Rosario."
-                                            </p>
-                                        </div>
-                                        <div className="bg-yellow-400 p-6 rounded-3xl flex flex-col justify-center">
-                                            <p className="text-black font-black text-2xl uppercase italic leading-none mb-2">Opere en A3</p>
-                                            <p className="text-black/60 text-[10px] font-bold uppercase tracking-widest mb-4">Direct Market Access (DMA)</p>
-                                            <button className="bg-black text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em]">Abrir Mesa Directa</button>
-                                        </div>
-                                    </div>
                                 </div>
+                            </section>
+                        )}
 
-                                {/* SIDEBAR DE ESTADO */}
+                        {activeView === 'INFORMES' && (
+                            <section className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in duration-500">
+                                <div className="md:col-span-2 space-y-6">
+                                    <h3 className="font-black text-xl italic uppercase border-l-4 border-slate-900 pl-4 mb-8">Información Estratégica</h3>
+                                    {[
+                                        { s: "WASDE", t: "Recorte inesperado en rindes de EEUU", f: "USDA", h: "Hace 2h" },
+                                        { s: "A3 MERCADOS", t: "Aumento de volumen en Puts Soja Mayo", f: "Mesa Agrinter", h: "Hace 4h" },
+                                        { s: "BCR", t: "Estado de cultivos en zona nucleo", f: "GEA", h: "Ayer" }
+                                    ].map((inf, i) => (
+                                        <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-accent transition-all cursor-pointer flex justify-between items-center group">
+                                            <div className="space-y-1">
+                                                <span className="text-[9px] font-black bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase">{inf.s}</span>
+                                                <h4 className="font-black text-slate-900 group-hover:text-slate-700">{inf.t}</h4>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase">{inf.f} • {inf.h}</p>
+                                            </div>
+                                            <i data-lucide="chevron-right" className="w-5 h-5 text-slate-300 group-hover:text-accent"></i>
+                                        </div>
+                                    ))}
+                                </div>
                                 <div className="space-y-6">
-                                    <div className="glass-panel p-6 rounded-3xl text-center">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Tasa Badlar ARS</p>
-                                        <p className="text-3xl font-black text-white leading-none">38.5%</p>
-                                        <div className="mt-4 h-1 bg-slate-800 rounded-full overflow-hidden">
-                                            <div className="w-2/3 h-full bg-yellow-400"></div>
-                                        </div>
-                                    </div>
-                                    <div className="bg-blue-600 p-6 rounded-3xl shadow-[0_0_30px_rgba(37,99,235,0.3)]">
-                                        <i data-lucide="help-circle" className="w-8 h-8 text-white mb-4"></i>
-                                        <h5 className="text-white font-black uppercase text-xs mb-2 italic">Asistente de Coberturas</h5>
-                                        <p className="text-blue-100 text-[10px] font-bold leading-relaxed">¿No sabe si comprar un PUT o un Sintético? Nuestro algoritmo le ayuda a decidir según su flujo de caja.</p>
+                                    <div className="bg-slate-900 text-white p-6 rounded-3xl">
+                                        <h4 className="text-xs font-black uppercase text-accent mb-4 italic">Confección Propia</h4>
+                                        <p className="text-[11px] text-slate-400 leading-relaxed font-bold italic mb-6">"Nuestros analistas proyectan un piso firme para la soja ante la falta de humedad. Es momento de revisar los Calls Sintéticos."</p>
+                                        <button className="w-full bg-white/10 py-3 rounded-xl text-[9px] font-black uppercase hover:bg-white/20">Ver Reporte Semanal</button>
                                     </div>
                                 </div>
                             </section>
                         )}
 
-                        {activeView === 'ESTRATEGIA SINTETICA' && (
-                            <section className="animate-in slide-in-from-bottom-8 duration-500 flex flex-col items-center">
-                                <div className="max-w-3xl w-full glass-panel p-10 rounded-[3rem] border-2 border-yellow-400/30">
-                                    <div className="text-center mb-10">
-                                        <h2 className="text-5xl font-black text-white italic uppercase tracking-tighter mb-2">Put <span className="text-yellow-400">Sintético</span></h2>
-                                        <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.4em]">Fórmula: Venta Físico + Compra de CALL</p>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-yellow-400 uppercase">Precio Venta Hoy (Físico)</label>
-                                            <input type="text" value="u$s 325" readOnly className="w-full bg-black/50 border border-white/10 p-4 rounded-xl text-white font-black" />
-                                        </div>
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-yellow-400 uppercase">Costo Call (Seguro de Alza)</label>
-                                            <input type="text" value={`u$s ${prices.sojaCall}`} readOnly className="w-full bg-black/50 border border-white/10 p-4 rounded-xl text-white font-black" />
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white/5 p-8 rounded-3xl border border-white/5 mb-8">
-                                        <h4 className="text-center font-black text-white uppercase text-xs mb-6">Resultado de la Estrategia</h4>
-                                        <div className="flex justify-around items-center">
-                                            <div className="text-center">
-                                                <p className="text-[9px] text-slate-500 font-bold uppercase mb-1">Piso Cobrado</p>
-                                                <p className="text-3xl font-black text-white">316.5</p>
-                                            </div>
-                                            <div className="h-12 w-px bg-white/10"></div>
-                                            <div className="text-center">
-                                                <p className="text-[9px] text-slate-500 font-bold uppercase mb-1">Techo de Ganancia</p>
-                                                <p className="text-3xl font-black text-green-400">ILIMITADO</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <button className="w-full bg-yellow-400 text-black py-6 rounded-2xl font-black uppercase tracking-[0.3em] hover:scale-[1.02] transition-transform">
-                                        Solicitar Ejecución en A3
-                                    </button>
-                                </div>
-                            </section>
-                        )}
-
-                        {/* SECCIONES EN DESARROLLO */}
-                        {(activeView === 'COBERTURAS' || activeView === 'INFORMES') && (
-                            <div className="h-96 flex flex-col items-center justify-center opacity-30">
-                                <i data-lucide="terminal" className="w-16 h-16 mb-4"></i>
-                                <p className="font-black uppercase tracking-[0.5em]">Terminal Data Streaming...</p>
+                        {activeView === 'MERCADOS' && (
+                             <div className="h-96 bg-white border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-12 text-center opacity-40">
+                                <i data-lucide="layout-grid" className="w-16 h-16 mb-4"></i>
+                                <p className="font-black uppercase tracking-[0.5em]">Panel de Cotizaciones en Vivo...</p>
                             </div>
                         )}
 
                     </main>
 
-                    <footer className="bg-black py-16 px-6 border-t border-white/5">
-                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                    <footer className="bg-slate-900 text-white py-12 px-6 border-t-4 border-accent">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-bold uppercase tracking-widest">
                             <div className="text-center md:text-left">
-                                <h5 className="text-yellow-400 font-black uppercase text-2xl tracking-tighter italic">Agrinter</h5>
-                                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Connect to A3 Mercados Argentina</p>
+                                <p className="text-accent mb-2">Agrinter Cereales</p>
+                                <p className="text-slate-500">Operadores autorizados MatbaRofex & A3 Mercados</p>
                             </div>
-                            <div className="flex gap-8 text-[10px] font-black text-slate-500 uppercase">
-                                <span className="hover:text-yellow-400 cursor-pointer">Seguridad</span>
-                                <span className="hover:text-yellow-400 cursor-pointer">API Docs</span>
-                                <span className="hover:text-yellow-400 cursor-pointer">Soporte Técnico</span>
+                            <div className="flex gap-8">
+                                <span className="hover:text-accent cursor-pointer">MAXIMO AMBROSONI: +54 9 2317 472899</span>
                             </div>
-                            <div className="text-right">
-                                <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest italic">BUILD: Chicago_Core_v2.7</p>
-                            </div>
+                            <div className="text-slate-700 italic">BUILD: Chicago_v2.8_Argentina_Core</div>
                         </div>
                     </footer>
                 </div>
