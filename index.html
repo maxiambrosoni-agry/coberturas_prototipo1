@@ -1,279 +1,139 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agrinter Cereales - Intelligence & Risk</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; }
-        .bg-navy { background-color: #0f172a; }
-        .text-accent { color: #fbbf24; }
-        .border-accent { border-color: #fbbf24; }
-        
-        /* Animación para el Ticker */
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .animate-marquee { display: flex; width: fit-content; animation: marquee 40s linear infinite; }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
+{activeView === 'AGRO-CALC' && (
+    <section className="animate-in fade-in duration-500 max-w-6xl mx-auto">
+        {/* HEADER DE LA CALCULADORA */}
+        <div className="flex justify-between items-center mb-6 bg-slate-900 p-6 rounded-3xl text-white shadow-xl">
+            <div>
+                <h2 className="text-xl font-black italic uppercase tracking-tighter">Margen Bruto Proyectado</h2>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Configuración de campaña 26/27</p>
+            </div>
+            <div className="text-right">
+                <span className="text-3xl font-black text-green-400">+u$s 9.40 <span className="text-xs font-normal text-slate-400">/ha</span></span>
+            </div>
+        </div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        const App = () => {
-            const [activeView, setActiveView] = useState('COBERTURAS');
-            const [activeGrain, setActiveGrain] = useState('SOJA');
-
-            // --- GESTIÓN DE PRODUCTOS (Agregá o quitá acá) ---
-            const productos = {
-                SOJA: [
-                    { pos: "MAY26", strike: 314.5, prima: 3.8, desc: "Piso Defensivo" },
-                    { pos: "JUL26", strike: 320.0, prima: 4.5, desc: "Equilibrado" },
-                    { pos: "NOV26", strike: 335.0, prima: 5.2, desc: "Agresivo" },
-                    { pos: "MAY27", strike: 310.0, prima: 6.0, desc: "Pre-Campaña" }
-                ],
-                MAIZ: [
-                    { pos: "JUL26", strike: 180.0, prima: 2.8, desc: "Seguro de Cosecha" },
-                    { pos: "SEP26", strike: 188.0, prima: 3.5, desc: "Protección Tardía" }
-                ],
-                TRIGO: [
-                    { pos: "DIC25", strike: 210.0, prima: 4.2, desc: "Piso Fino" },
-                    { pos: "ENE26", strike: 218.0, prima: 4.8, desc: "Estrategia Enero" }
-                ]
-            };
-
-            useEffect(() => { lucide.createIcons(); }, [activeView, activeGrain]);
-
-            return (
-                <div className="min-h-screen flex flex-col">
-                    
-                    {/* TICKER DE MERCADO (Información y Confianza) */}
-                    <div className="bg-slate-900 text-white py-1.5 border-b border-slate-700 overflow-hidden">
-                        <div className="animate-marquee whitespace-nowrap gap-12 text-[10px] font-mono">
-                            {[1,2].map(n => (
-                                <span key={n} className="flex gap-10 items-center">
-                                    <span>SOJA MAY26: <b className="text-accent">314.50</b></span>
-                                    <span>DLR MAYORISTA: 885.40</span>
-                                    <span>TRIGO ENE26: 212.00</span>
-                                    <span>MAIZ JUL26: 189.00</span>
-                                    <span className="text-green-400">● A3 MERCADOS CONECTADO</span>
-                                </span>
-                            ))}
-                        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* COLUMNA IZQUIERDA: INPUTS (Inspirado en Hender) */}
+            <div className="lg:col-span-4 space-y-4">
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <div className="flex gap-2 mb-6">
+                        {['Soja 1°', 'Maíz', 'Trigo'].map(c => (
+                            <button key={c} className={`px-3 py-1 text-[9px] font-black rounded-full border ${c === 'Soja 1°' ? 'bg-slate-900 text-accent border-slate-900' : 'text-slate-400 border-slate-200'}`}>{c}</button>
+                        ))}
                     </div>
 
-                    <header className="bg-white shadow-sm sticky top-0 z-50">
-                        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-slate-900 text-accent w-10 h-10 flex items-center justify-center font-black text-xl">A</div>
-                                <div>
-                                    <h1 className="text-xl font-black uppercase tracking-tighter">Agrinter Cereales</h1>
-                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Intelligence & Risk Management</p>
+                    <div className="space-y-6">
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase">Alquiler (qq Soja)</label>
+                                <span className="text-[10px] font-black text-slate-900">13.0</span>
+                            </div>
+                            <input type="range" className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Precio Soja 1°</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-2 text-slate-400 text-xs">$</span>
+                                    <input type="number" defaultValue="314.5" className="w-full bg-slate-50 border border-slate-100 p-2 pl-6 rounded-lg text-sm font-black focus:border-accent outline-none" />
                                 </div>
                             </div>
-                            <nav className="flex flex-wrap justify-center gap-1">
-                                {['COBERTURAS', 'MERCADOS', 'AGRO-CALC', 'INFORMES'].map(v => (
-                                    <button key={v} onClick={() => setActiveView(v)}
-                                        className={`px-4 py-2 text-[10px] font-black rounded-md transition-all ${activeView === v ? 'bg-slate-900 text-accent' : 'text-slate-400 hover:bg-slate-100'}`}>
-                                        {v}
-                                    </button>
-                                ))}
-                            </nav>
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Tu Rinde (qq/ha)</label>
+                                <input type="number" defaultValue="33.6" className="w-full bg-slate-50 border border-slate-100 p-2 rounded-lg text-sm font-black focus:border-accent outline-none" />
+                            </div>
                         </div>
-                    </header>
-
-                    <main className="max-w-7xl mx-auto px-4 py-10 flex-grow w-full">
                         
-                        {activeView === 'COBERTURAS' && (
-                            <section className="animate-in fade-in duration-500">
-                                {/* EL MENSAJE PROFESIONAL */}
-                                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-10 flex flex-col md:flex-row items-center gap-8">
-                                    <div className="bg-slate-900 p-4 rounded-2xl">
-                                        <i data-lucide="shield-check" className="w-12 h-12 text-accent"></i>
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-black text-slate-900 uppercase italic mb-2">Gestioná tu riesgo de precio</h2>
-                                        <p className="text-slate-600 text-sm leading-relaxed max-w-2xl">
-                                            Usted asegura su producción contra <b>granizo o helada</b> para proteger su capital. 
-                                            Los <b>Seguros de Precio</b> funcionan igual: aseguran su rentabilidad mínima, permitiéndole capturar subas y eliminando la incertidumbre de la volatilidad agraria.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-center mb-8">
-                                    <div className="bg-slate-200 p-1 rounded-xl flex">
-                                        {['SOJA', 'MAIZ', 'TRIGO'].map(g => (
-                                            <button key={g} onClick={() => setActiveGrain(g)}
-                                                className={`px-8 py-2 text-[10px] font-black rounded-lg transition-all ${activeGrain === g ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}>{g}</button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* TARJETAS DE PAQUETES/PRODUCTOS */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {productos[activeGrain].map((p, i) => (
-                                        <div key={i} className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col">
-                                            <div className="p-6">
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <span className="bg-slate-100 text-slate-900 text-[10px] font-black px-3 py-1 rounded-full uppercase italic">Posición {p.pos}</span>
-                                                    <i data-lucide="trending-up" className="w-4 h-4 text-slate-300"></i>
-                                                </div>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Piso Garantizado</p>
-                                                <div className="text-5xl font-black text-slate-900 mb-6 tracking-tighter">u$s {p.strike}</div>
-                                                
-                                                <div className="space-y-2 border-t border-slate-50 pt-4 mb-6">
-                                                    <div className="flex justify-between text-[11px]">
-                                                        <span className="text-slate-400 font-bold uppercase tracking-tighter">Costo de Prima:</span>
-                                                        <span className="text-slate-900 font-black">u$s {p.prima}</span>
-                                                    </div>
-                                                    <div className="flex justify-between text-[11px]">
-                                                        <span className="text-slate-400 font-bold uppercase tracking-tighter">Perfil:</span>
-                                                        <span className="text-slate-900 font-black italic">{p.desc}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button className="w-full bg-slate-900 text-accent py-4 text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-black transition-colors">
-                                                Consultar Cobertura
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-
-                        {activeView === 'AGRO-CALC' && (
-                            <section className="animate-in slide-in-from-bottom-8 duration-500">
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    {/* INPUTS - Inspirado en HenderSeeds */}
-                                    <div className="lg:col-span-1 space-y-4">
-                                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                                            <h3 className="font-black text-xs uppercase mb-6 border-l-4 border-slate-900 pl-3">Calculadora de Margen</h3>
-                                            <div className="space-y-4 font-bold text-xs">
-                                                <div>
-                                                    <label className="block text-slate-400 mb-2 uppercase">Rinde Estimado (qq/ha)</label>
-                                                    <input type="number" defaultValue="33.6" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-accent" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-slate-400 mb-2 uppercase">Precio Soja (u$s/t)</label>
-                                                    <input type="number" defaultValue="314.5" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-accent" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-slate-400 mb-2 uppercase">Alquiler (qq/ha)</label>
-                                                    <input type="number" defaultValue="13" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-accent" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* RESULTADOS VISUALES */}
-                                    <div className="lg:col-span-2 space-y-6">
-                                        <div className="bg-slate-900 rounded-3xl p-8 text-white flex justify-between items-center relative overflow-hidden">
-                                            <div className="relative z-10">
-                                                <p className="text-[10px] font-black text-accent uppercase mb-1">Margen Bruto Proyectado</p>
-                                                <p className="text-6xl font-black italic">+u$s 12 /ha</p>
-                                            </div>
-                                            <div className="bg-green-500/20 text-green-400 p-4 rounded-2xl relative z-10">
-                                                <i data-lucide="trending-up" className="w-12 h-12"></i>
-                                            </div>
-                                            <div className="absolute top-0 right-0 p-10 opacity-5">
-                                                <i data-lucide="bar-chart-3" className="w-40 h-40"></i>
-                                            </div>
-                                        </div>
-                                        
-                                        {/* TABLA DE INDIFERENCIA (Versión simplificada) */}
-                                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 overflow-x-auto">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase mb-4 text-center">Matriz de Sensibilidad (u$s/ha)</p>
-                                            <table className="w-full text-[10px] font-bold text-center border-separate border-spacing-1">
-                                                <thead>
-                                                    <tr>
-                                                        <th className="p-2">QQ \ USD</th>
-                                                        <th className="bg-slate-50 p-2">302</th>
-                                                        <th className="bg-slate-50 p-2">314</th>
-                                                        <th className="bg-slate-900 text-accent p-2">325</th>
-                                                        <th className="bg-slate-50 p-2">350</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {[28, 33, 38].map(r => (
-                                                        <tr key={r}>
-                                                            <td className="bg-slate-50 p-2">{r}</td>
-                                                            <td className="text-red-500">-81</td>
-                                                            <td className="text-red-500">-40</td>
-                                                            <td className="bg-slate-900 text-white p-2">0</td>
-                                                            <td className="text-green-600">+97</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        )}
-
-                        {activeView === 'INFORMES' && (
-                            <section className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in duration-500">
-                                <div className="md:col-span-2 space-y-6">
-                                    <h3 className="font-black text-xl italic uppercase border-l-4 border-slate-900 pl-4 mb-8">Información Estratégica</h3>
-                                    {[
-                                        { s: "WASDE", t: "Recorte inesperado en rindes de EEUU", f: "USDA", h: "Hace 2h" },
-                                        { s: "A3 MERCADOS", t: "Aumento de volumen en Puts Soja Mayo", f: "Mesa Agrinter", h: "Hace 4h" },
-                                        { s: "BCR", t: "Estado de cultivos en zona nucleo", f: "GEA", h: "Ayer" }
-                                    ].map((inf, i) => (
-                                        <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-accent transition-all cursor-pointer flex justify-between items-center group">
-                                            <div className="space-y-1">
-                                                <span className="text-[9px] font-black bg-slate-100 px-2 py-0.5 rounded text-slate-500 uppercase">{inf.s}</span>
-                                                <h4 className="font-black text-slate-900 group-hover:text-slate-700">{inf.t}</h4>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase">{inf.f} • {inf.h}</p>
-                                            </div>
-                                            <i data-lucide="chevron-right" className="w-5 h-5 text-slate-300 group-hover:text-accent"></i>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="space-y-6">
-                                    <div className="bg-slate-900 text-white p-6 rounded-3xl">
-                                        <h4 className="text-xs font-black uppercase text-accent mb-4 italic">Confección Propia</h4>
-                                        <p className="text-[11px] text-slate-400 leading-relaxed font-bold italic mb-6">"Nuestros analistas proyectan un piso firme para la soja ante la falta de humedad. Es momento de revisar los Calls Sintéticos."</p>
-                                        <button className="w-full bg-white/10 py-3 rounded-xl text-[9px] font-black uppercase hover:bg-white/20">Ver Reporte Semanal</button>
-                                    </div>
-                                </div>
-                            </section>
-                        )}
-
-                        {activeView === 'MERCADOS' && (
-                             <div className="h-96 bg-white border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-12 text-center opacity-40">
-                                <i data-lucide="layout-grid" className="w-16 h-16 mb-4"></i>
-                                <p className="font-black uppercase tracking-[0.5em]">Panel de Cotizaciones en Vivo...</p>
+                        <div className="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-black text-slate-500 uppercase">Indiferencia</span>
+                                <span className="text-sm font-black text-slate-900">33.2 qq/ha</span>
                             </div>
-                        )}
-
-                    </main>
-
-                    <footer className="bg-slate-900 text-white py-12 px-6 border-t-4 border-accent">
-                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-bold uppercase tracking-widest">
-                            <div className="text-center md:text-left">
-                                <p className="text-accent mb-2">Agrinter Cereales</p>
-                                <p className="text-slate-500">Operadores autorizados MatbaRofex & A3 Mercados</p>
-                            </div>
-                            <div className="flex gap-8">
-                                <span className="hover:text-accent cursor-pointer">MAXIMO AMBROSONI: +54 9 2317 472899</span>
-                            </div>
-                            <div className="text-slate-700 italic">BUILD: Chicago_v2.8_Argentina_Core</div>
+                            <p className="text-[9px] text-green-600 font-bold mt-1">+0.4 qq sobre indiferencia</p>
                         </div>
-                    </footer>
+                    </div>
                 </div>
-            );
-        };
+            </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+            {/* COLUMNA DERECHA: DESGLOSE Y MATRIZ */}
+            <div className="lg:col-span-8 space-y-6">
+                
+                {/* BARRA DE COMPOSICIÓN DE GASTOS */}
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <div className="flex justify-between items-end mb-4">
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase">Ingreso Total</p>
+                            <h4 className="text-2xl font-black text-slate-900">u$s 1.056 <span className="text-xs font-normal">/ha</span></h4>
+                        </div>
+                    </div>
+                    {/* Visual de barra Henderseeds style */}
+                    <div className="h-4 w-full flex rounded-full overflow-hidden mb-6">
+                        <div className="bg-indigo-500 h-full" style={{width: '37%'}}></div>
+                        <div className="bg-orange-400 h-full" style={{width: '15%'}}></div>
+                        <div className="bg-blue-400 h-full" style={{width: '20%'}}></div>
+                        <div className="bg-slate-200 h-full flex-grow"></div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="border-l-2 border-indigo-500 pl-3">
+                            <p className="text-[9px] font-black text-slate-400 uppercase">Alquiler</p>
+                            <p className="text-xs font-black text-slate-900">u$s 416 (37%)</p>
+                        </div>
+                        <div className="border-l-2 border-orange-400 pl-3">
+                            <p className="text-[9px] font-black text-slate-400 uppercase">Labores/Semilla</p>
+                            <p className="text-xs font-black text-slate-900">u$s 152 (15%)</p>
+                        </div>
+                        <div className="border-l-2 border-blue-400 pl-3">
+                            <p className="text-[9px] font-black text-slate-400 uppercase">Flete/Comerc.</p>
+                            <p className="text-xs font-black text-slate-900">u$s 201 (18%)</p>
+                        </div>
+                        <div className="border-l-2 border-green-500 pl-3">
+                            <p className="text-[9px] font-black text-slate-400 uppercase">Margen</p>
+                            <p className="text-xs font-black text-slate-900">u$s 9 (1%)</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* MATRIZ DE SENSIBILIDAD COMPLETA */}
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                    <p className="text-[10px] font-black text-slate-400 uppercase mb-4 text-center tracking-widest">Margen u$s/ha por Rinde y Precio</p>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-[10px] font-bold text-center border-separate border-spacing-1">
+                            <thead>
+                                <tr>
+                                    <th className="p-2 text-slate-300">QQ \ USD</th>
+                                    {[302, 314, 325, 350, 369].map(p => (
+                                        <th key={p} className={`p-2 rounded-lg ${p === 314 ? 'bg-slate-900 text-accent' : 'bg-slate-50 text-slate-400'}`}>{p}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {[23.2, 28.2, 33.2, 38.2, 43.2].map((r, idx) => (
+                                    <tr key={r}>
+                                        <td className="bg-slate-50 p-2 rounded-lg text-slate-400">{r}</td>
+                                        <td className="text-red-400 p-2">-311</td>
+                                        <td className="text-red-400 p-2">-203</td>
+                                        <td className={`p-2 rounded-lg ${r === 33.2 ? 'bg-accent/20 text-slate-900 border border-accent/50' : 'text-slate-400'}`}>{r === 33.2 ? '0' : '-94'}</td>
+                                        <td className="text-green-600 p-2">+81</td>
+                                        <td className="text-green-600 p-2">+234</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {/* BOTÓN DE ACCIÓN VINCULADO A COBERTURAS */}
+        <div className="mt-8 flex justify-center">
+            <button 
+                onClick={() => setActiveView('COBERTURAS')}
+                className="bg-accent text-slate-900 px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-lg hover:scale-105 transition-transform flex items-center gap-3">
+                <i data-lucide="trending-up" className="w-4 h-4"></i>
+                Proteger este margen ahora
+            </button>
+        </div>
+    </section>
+)}
