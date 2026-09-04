@@ -3,116 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis de Probabilidad - PRODE 2026</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-6">
+    <title>Terminal Agro Quant</title>
+    <!-- Incluir CSS de Leaflet para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a202c; color: white;}
+        
+        /* Estilos del Login */
+        #login-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #1a202c; display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: #2d3748; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); text-align: center; width: 300px; border-top: 4px solid #3182ce; }
+        .login-box h2 { margin-top: 0; color: #63b3ed; }
+        .login-box input { width: 90%; padding: 10px; margin: 10px 0; border: none; border-radius: 4px; background: #4a5568; color: white; }
+        .login-box button { width: 100%; padding: 10px; background: #3182ce; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 15px;}
+        .login-box button:hover { background: #2b6cb0; }
 
-    <div class="w-full max-w-4xl bg-slate-800 rounded-xl shadow-2xl p-6 border border-slate-700">
-        <div class="mb-6">
-            <h2 class="text-2xl font-bold text-emerald-400">Distribución de Resultados Exactos</h2>
-            <p class="text-slate-400 text-sm mt-1">Comparativa: Histórico Mundial (2014-2022) vs. Realidad Mundial 2026</p>
-        </div>
+        /* Estilos de la Terminal (Mapa y Panel) */
+        #app-container { display: none; height: 100%; width: 100%; }
+        #map { height: 100%; width: 70%; float: left; }
+        #sidebar { height: 100%; width: 30%; float: left; background: #2d3748; padding: 20px; box-sizing: border-box; overflow-y: auto; border-left: 1px solid #4a5568; }
         
-        <div class="relative w-full h-[400px]">
-            <canvas id="prodeChart"></canvas>
-        </div>
+        .carpeta-header { border-bottom: 2px solid #3182ce; padding-bottom: 10px; margin-bottom: 20px; }
+        .carpeta-header h3 { margin: 0; color: #63b3ed; font-size: 24px; }
         
-        <div class="mt-4 text-xs text-slate-500 text-right">
-            * Basado en un total de 7 partidos disputados en la ronda actual (2026).
+        .data-card { background: #4a5568; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+        .data-card h4 { margin: 0 0 10px 0; color: #e2e8f0; font-size: 16px; border-bottom: 1px solid #718096; padding-bottom: 5px;}
+        .data-item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
+        .data-value { font-weight: bold; color: #90cdf4; }
+        .tag-alerta { background: #c53030; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla de Login -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Agro Quant</h2>
+            <p>Acceso Seguro</p>
+            <input type="text" id="user" value="saul.ambrosoni" placeholder="Usuario">
+            <input type="password" id="pass" value="********" placeholder="Contraseña">
+            <button onclick="iniciarSesion()">Ingresar a la Terminal</button>
         </div>
     </div>
 
+    <!-- Contenedor Principal de la App -->
+    <div id="app-container">
+        <div id="map"></div>
+        <div id="sidebar">
+            <div id="default-msg">
+                <h3 style="color: #a0aec0; text-align: center; margin-top: 50%;">Seleccione un pin en el mapa para abrir la carpeta del lote.</h3>
+            </div>
+            
+            <!-- Carpeta del Lote (Oculta por defecto) -->
+            <div id="lote-data" style="display: none;">
+                <div class="carpeta-header">
+                    <h3 id="lote-nombre">Lote Solavarrieta</h3>
+                    <p style="margin: 5px 0 0 0; color: #a0aec0; font-size: 14px;">Trigo DM Tipa | 19 Hectáreas</p>
+                </div>
+
+                <div class="data-card">
+                    <h4>Nutrición Aplicada</h4>
+                    <div class="data-item"><span>Fertilización Base (MAP):</span> <span class="data-value">105.8 kg/ha</span></div>
+                    <div class="data-item"><span>Refertilización (Urea):</span> <span class="data-value">254.3 kg/ha</span></div>
+                    <div class="data-item"><span>Dosis Máxima Loma:</span> <span class="data-value tag-alerta">300 kg/ha</span></div>
+                </div>
+
+                <div class="data-card">
+                    <h4>Gestión de Riesgo (Cobertura)</h4>
+                    <div class="data-item"><span>Aseguradora:</span> <span class="data-value">San Cristóbal</span></div>
+                    <div class="data-item"><span>Riesgos:</span> <span class="data-value">Granizo + Incendio + Helada</span></div>
+                    <div class="data-item"><span>Suma Asegurada:</span> <span class="data-value">U$S 1.000 / ha</span></div>
+                    <div class="data-item"><span>Costo Asignado:</span> <span class="data-value">U$S 40.00 / ha</span></div>
+                </div>
+
+                <div class="data-card" style="border-left: 4px solid #68d391;">
+                    <h4>Finanzas</h4>
+                    <div class="data-item"><span>Arrendamiento Asignado:</span> <span class="data-value">5.2 qq Soja/ha</span></div>
+                    <div class="data-item"><span>Estado Fenológico:</span> <span class="data-value">Encanezón</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const ctx = document.getElementById('prodeChart').getContext('2d');
-        
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['2-1 / 1-2', '1-1', '2-0 / 0-2', '3-1 / 1-3', '1-0 / 0-1', '3-0 / 0-3', '4-0 / 0-4'],
-                datasets: [
-                    {
-                        label: 'Probabilidad Histórica (%)',
-                        data: [25.00, 25.00, 12.50, 8.33, 8.33, 4.17, 0.00],
-                        backgroundColor: 'rgba(148, 163, 184, 0.2)', // Slate-400 transparente
-                        borderColor: 'rgba(148, 163, 184, 1)',
-                        borderWidth: 1.5,
-                        borderRadius: 4,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
-                    },
-                    {
-                        label: 'Frecuencia Real 2026 (%)',
-                        data: [28.57, 28.57, 14.29, 0.00, 0.00, 14.29, 0.00],
-                        backgroundColor: 'rgba(52, 211, 153, 0.75)', // Emerald-400 con opacidad
-                        borderColor: 'rgba(52, 211, 153, 1)',
-                        borderWidth: 2,
-                        borderRadius: 4,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.7
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            color: '#cbd5e1', // Slate-300
-                            font: {
-                                size: 13,
-                                family: 'ui-sans-serif, system-ui, sans-serif'
-                            },
-                            boxWidth: 15
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: '#0f172a', // Slate-900
-                        titleColor: '#34d399', // Emerald-400
-                        bodyColor: '#f8fafc',
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.raw.toFixed(2) + '%';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#94a3b8', // Slate-400
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    y: {
-                        grid: {
-                            color: 'rgba(51, 65, 85, 0.5)' // Slate-700 sutil
-                        },
-                        ticks: {
-                            color: '#94a3b8',
-                            font: {
-                                size: 12
-                            },
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        },
-                        min: 0,
-                        max: 35
-                    }
-                }
-            }
-        });
+        // Función de Login Simulado
+        function iniciarSesion() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            inicializarMapa();
+        }
+
+        function inicializarMapa() {
+            // Centrar el mapa en 9 de Julio, Buenos Aires
+            var map = L.map('map').setView([-35.4444, -60.8831], 11);
+
+            // Capa de satélite de Esri (Gratuita y sin API Key para prototipos)
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            }).addTo(map);
+
+            // Crear un Pin para el lote Solavarrieta
+            var pinSolavarrieta = L.marker([-35.4200, -60.9000]).addTo(map);
+            pinSolavarrieta.bindTooltip("Lote 1: Solavarrieta", {permanent: false, direction: 'top'});
+
+            // Acción al hacer clic en el pin
+            pinSolavarrieta.on('click', function() {
+                document.getElementById('default-msg').style.display = 'none';
+                document.getElementById('lote-data').style.display = 'block';
+            });
+        }
     </script>
 </body>
 </html>
