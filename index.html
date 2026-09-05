@@ -14,9 +14,9 @@
         /* Panel Izquierdo (Edición) */
         #sidebar-left { width: 250px; background: #2d3748; padding: 15px; box-sizing: border-box; border-right: 1px solid #4a5568; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
         #sidebar-left h2 { color: #63b3ed; margin-top: 0; font-size: 22px; border-bottom: 2px solid #3182ce; padding-bottom: 10px;}
-        .form-group { margin-bottom: 12px; }
+        .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 4px; }
-        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; color: white; border: 1px solid #718096; border-radius: 4px; }
+        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; color: white; border: 1px solid #718096; border-radius: 4px; font-family: monospace; font-size: 11px; }
         .btn { width: 100%; padding: 10px; margin-top: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-add { background: #3182ce; color: white; }
         .btn-add:hover { background: #2b6cb0; }
@@ -56,12 +56,8 @@
                 <input type="text" id="input-nombre" placeholder="Ej. La Aguada">
             </div>
             <div class="form-group">
-                <label>Latitud</label>
-                <input type="text" id="input-lat" placeholder="-35.4200">
-            </div>
-            <div class="form-group">
-                <label>Longitud</label>
-                <input type="text" id="input-lng" placeholder="-60.9000">
+                <label>Coordenadas (Google Earth)</label>
+                <input type="text" id="input-coords" placeholder="35°32'56.51&quot;S 60°54'55.33&quot;W">
             </div>
             <button class="btn btn-add" onclick="agregarLoteManual()">+ Agregar Lote</button>
             <hr style="border-color: #4a5568; margin: 25px 0;">
@@ -126,6 +122,30 @@
         var map;
         var marcadores = []; // Array para almacenar los pines
 
+        // Función para convertir grados, minutos y segundos a decimales
+        function parseDMS(dmsStr) {
+            // Expresión regular para capturar la estructura: 35°32'56.51"S
+            var regex = /(\d+)[°º]\s*(\d+)['´]\s*([\d\.]+)(?:''|")\s*([NSWE])/gi;
+            var match;
+            var coords = [];
+            
+            while ((match = regex.exec(dmsStr)) !== null) {
+                var degrees = parseFloat(match[1]);
+                var minutes = parseFloat(match[2]);
+                var seconds = parseFloat(match[3]);
+                var direction = match[4].toUpperCase();
+                
+                var decimal = degrees + (minutes / 60) + (seconds / 3600);
+                
+                // Si es Sur (S) u Oeste (W), el valor decimal debe ser negativo
+                if (direction === 'S' || direction === 'W') {
+                    decimal = decimal * -1;
+                }
+                coords.push(decimal);
+            }
+            return coords; // Devuelve un array [latitud_decimal, longitud_decimal]
+        }
+
         // Inicialización del motor geográfico
         function initMap() {
             map = L.map('map').setView([-35.4444, -60.8831], 11); // Centrado en 9 de Julio
@@ -133,9 +153,6 @@
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
             }).addTo(map);
-
-            // Cargar lote base
-            agregarPin([-35.4200, -60.9000], "Solavarrieta");
         }
 
         // Lógica para crear pines interactivos
@@ -166,16 +183,30 @@
 
         // Interfaz de Usuario: Agregar manualmente
         function agregarLoteManual() {
-            var lat = parseFloat(document.getElementById('input-lat').value);
-            var lng = parseFloat(document.getElementById('input-lng').value);
+            var coordsStr = document.getElementById('input-coords').value;
             var nom = document.getElementById('input-nombre').value;
 
-            if (isNaN(lat) || isNaN(lng) || nom === "") {
-                alert("Por favor, complete todos los campos correctamente.");
+            if (nom === "" || coordsStr === "") {
+                alert("Por favor, complete el nombre y pegue las coordenadas.");
                 return;
             }
-            agregarPin([lat, lng], nom);
-            map.flyTo([lat, lng], 14); // Acercar al lote nuevo
+
+            var parsedCoords = parseDMS(coordsStr);
+            
+            // Validar que se hayan detectado correctamente latitud y longitud
+            if(parsedCoords.length !== 2) {
+                alert("Formato no válido. Asegúrese de copiar la coordenada exactamente como en Google Earth (ej. 35°32'56.51\"S 60°54'55.33\"W).");
+                return;
+            }
+
+            agregarPin([parsedCoords[0], parsedCoords[1]], nom);
+            
+            // Acercar la cámara al lote nuevo
+            map.flyTo([parsedCoords[0], parsedCoords[1]], 16); 
+            
+            // Limpiar los inputs después de cargar
+            document.getElementById('input-nombre').value = "";
+            document.getElementById('input-coords').value = "";
         }
 
         // Interfaz de Usuario: Limpiar mapa
