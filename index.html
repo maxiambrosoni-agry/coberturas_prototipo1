@@ -80,11 +80,33 @@
                     <div class="data-item"><span>Arrendamiento Asignado:</span> <span class="data-value">5.2 qq Soja/ha</span></div>
                     <div class="data-item"><span>Estado Fenológico:</span> <span class="data-value">Encanezón</span></div>
                 </div>
+
+                <!-- MÓDULO: Terminal de Márgenes (Dinámico) -->
+                <div class="data-card" style="border-left: 4px solid #ecc94b; margin-top: 15px;">
+                    <h4>Terminal de Márgenes (Dinámico)</h4>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 12px; color: #a0aec0;">Precio Trigo Esperado (U$S/tn):</label>
+                        <input type="number" id="precio-trigo" value="210" style="width: 100%; padding: 5px; margin-top: 3px; background: #2d3748; color: white; border: 1px solid #718096; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 12px; color: #a0aec0;">Precio Soja Alquiler (U$S/tn):</label>
+                        <input type="number" id="precio-soja" value="290" style="width: 100%; padding: 5px; margin-top: 3px; background: #2d3748; color: white; border: 1px solid #718096; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+
+                    <button onclick="calcularIndiferencia()" style="width: 100%; padding: 8px; background: #d69e2e; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Calcular Rinde de Indiferencia</button>
+                    
+                    <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #718096;">
+                        <div class="data-item"><span>Indiferencia Física:</span> <span class="data-value" id="resultado-rinde" style="color: #ecc94b;">-- qq/ha</span></div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Script de Leaflet -->
+    <!-- Script de Leaflet y Lógica -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Función de Login Simulado
@@ -98,9 +120,9 @@
             // Centrar el mapa en 9 de Julio, Buenos Aires
             var map = L.map('map').setView([-35.4444, -60.8831], 11);
 
-            // Capa de satélite de Esri (Gratuita y sin API Key para prototipos)
+            // Capa de satélite de Esri
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                attribution: 'Tiles &copy; Esri'
             }).addTo(map);
 
             // Crear un Pin para el lote Solavarrieta
@@ -111,7 +133,41 @@
             pinSolavarrieta.on('click', function() {
                 document.getElementById('default-msg').style.display = 'none';
                 document.getElementById('lote-data').style.display = 'block';
+                // Calcular por defecto al abrir el lote
+                calcularIndiferencia(); 
             });
+        }
+
+        // NUEVA FUNCIÓN: Cálculo de Indiferencia (Actualizada)
+        function calcularIndiferencia() {
+            // 1. Obtener valores del mercado desde los inputs
+            const precioTrigoTn = parseFloat(document.getElementById('precio-trigo').value);
+            const precioSojaTn = parseFloat(document.getElementById('precio-soja').value);
+            
+            // Pasamos precios a quintales (1 tn = 10 qq)
+            const precioTrigoQq = precioTrigoTn / 10;
+            const precioSojaQq = precioSojaTn / 10;
+
+            // 2. Costos hundidos (Hardcodeados para el lote Solavarrieta por ahora)
+            const costoSeguro = 40; // U$S/ha (San Cristóbal)
+            const costoFertilizanteAgroquimicos = 320; // U$S/ha (Estimado de Urea + MAP + Barbecho)
+            const costoLabores = 90; // U$S/ha (Siembra y pulverizaciones)
+            
+            // 3. Cálculo del alquiler en dólares (5.2 qq de soja)
+            const costoAlquilerUSD = 5.2 * precioSojaQq;
+
+            // 4. Ecuación total
+            const costoTotalUSD = costoSeguro + costoFertilizanteAgroquimicos + costoLabores + costoAlquilerUSD;
+            
+            // 5. Rinde de indiferencia (Costo Total / Precio del Trigo)
+            const rindeIndiferencia = costoTotalUSD / precioTrigoQq;
+
+            // 6. Actualizar la interfaz
+            document.getElementById('resultado-rinde').innerText = rindeIndiferencia.toFixed(2) + ' qq/ha';
+            
+            // Pequeño efecto visual
+            document.getElementById('resultado-rinde').style.textShadow = "0 0 8px #ecc94b";
+            setTimeout(() => { document.getElementById('resultado-rinde').style.textShadow = "none"; }, 500);
         }
     </script>
 </body>
