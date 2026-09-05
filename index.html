@@ -11,12 +11,54 @@
         /* Layout Principal */
         #app-container { display: flex; height: 100vh; width: 100vw; }
         
-        /* Panel Izquierdo (Edición) */
-        #sidebar-left { width: 250px; background: #2d3748; padding: 15px; box-sizing: border-box; border-right: 1px solid #4a5568; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
-        #sidebar-left h2 { color: #63b3ed; margin-top: 0; font-size: 22px; border-bottom: 2px solid #3182ce; padding-bottom: 10px;}
+        /* ============================
+           PANEL IZQUIERDO (Geo-Editor)
+           ============================ */
+        #sidebar-left { width: 250px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); overflow: hidden; }
+        #sidebar-left.is-collapsed { width: 35px; background: #3182ce; }
+        
+        .content-left { width: 250px; padding: 15px; box-sizing: border-box; transition: opacity 0.2s ease; height: 100%; overflow-y: auto; }
+        #sidebar-left.is-collapsed .content-left { opacity: 0; pointer-events: none; }
+
+        .header-left { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3182ce; padding-bottom: 10px; margin-bottom: 15px; }
+        .header-left h2 { color: #63b3ed; margin: 0; font-size: 20px; }
+        
+        /* ============================
+           PANEL DERECHO (Carpeta Lote)
+           ============================ */
+        #sidebar-right { width: 350px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: -2px 0 5px rgba(0,0,0,0.5); overflow: hidden; display: none; }
+        #sidebar-right.active { display: block; }
+        #sidebar-right.is-collapsed { width: 35px; background: #3182ce; }
+        
+        .content-right { width: 350px; padding: 20px; box-sizing: border-box; transition: opacity 0.2s ease; height: 100%; overflow-y: auto; }
+        #sidebar-right.is-collapsed .content-right { opacity: 0; pointer-events: none; }
+
+        .header-right { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .header-right h3 { margin: 0; color: #63b3ed; font-size: 24px; }
+        .lote-estado { display: inline-block; background: #38a169; color: white; padding: 4px 8px; border-radius: 4px; font-size: 13px; font-weight: bold; margin-top: 8px; margin-bottom: 15px; }
+
+        /* ============================
+           BOTONES Y BARRAS COLAPSABLES
+           ============================ */
+        .btn-collapse { background: transparent; border: none; color: #63b3ed; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .btn-collapse:hover { color: white; }
+
+        /* Las barras azules que quedan al replegar */
+        .collapsed-bar { position: absolute; top: 0; height: 100%; width: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 20px; font-weight: bold; background: #3182ce; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 10; }
+        .collapsed-bar:hover { background: #2b6cb0; }
+        .collapsed-bar-left { right: 0; }
+        .collapsed-bar-right { left: 0; }
+        
+        #sidebar-left.is-collapsed .collapsed-bar { opacity: 1; pointer-events: auto; }
+        #sidebar-right.is-collapsed .collapsed-bar { opacity: 1; pointer-events: auto; }
+
+        /* ============================
+           COMPONENTES INTERNOS
+           ============================ */
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 4px; }
         .form-group input { width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; color: white; border: 1px solid #718096; border-radius: 4px; font-family: monospace; font-size: 11px; }
+        
         .btn { width: 100%; padding: 10px; margin-top: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-add { background: #3182ce; color: white; }
         .btn-add:hover { background: #2b6cb0; }
@@ -25,12 +67,6 @@
 
         /* Mapa Central */
         #map { flex-grow: 1; height: 100%; z-index: 1; }
-
-        /* Panel Derecho (Datos del Lote) */
-        #sidebar-right { width: 350px; background: #2d3748; padding: 20px; box-sizing: border-box; border-left: 1px solid #4a5568; display: none; overflow-y: auto; z-index: 1000; box-shadow: -2px 0 5px rgba(0,0,0,0.5); }
-        .lote-header { margin-bottom: 20px; }
-        .lote-header h3 { margin: 0; color: #63b3ed; font-size: 24px; }
-        .lote-estado { display: inline-block; background: #38a169; color: white; padding: 4px 8px; border-radius: 4px; font-size: 13px; font-weight: bold; margin-top: 8px; }
 
         /* Pestañas Acordeón */
         details { background: #4a5568; margin-bottom: 10px; border-radius: 6px; overflow: hidden; }
@@ -48,83 +84,116 @@
 <body>
 
     <div id="app-container">
-        <!-- Herramientas de Edición -->
+        <!-- ==========================================
+             PANEL IZQUIERDO (Herramientas de Edición)
+             ========================================== -->
         <div id="sidebar-left">
-            <h2>AF | Geo-Editor</h2>
-            <div class="form-group">
-                <label>Nombre del Lote</label>
-                <input type="text" id="input-nombre" placeholder="Ej. La Aguada">
+            <div class="content-left">
+                <div class="header-left">
+                    <h2>AF | Geo-Editor</h2>
+                    <button class="btn-collapse" onclick="toggleLeft()" title="Replegar panel">◀</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nombre del Lote</label>
+                    <input type="text" id="input-nombre" placeholder="Ej. La Aguada">
+                </div>
+                <div class="form-group">
+                    <label>Coordenadas (Google Earth)</label>
+                    <input type="text" id="input-coords" placeholder="35°32'56.51&quot;S 60°54'55.33&quot;W">
+                </div>
+                <button class="btn-add btn" onclick="agregarLoteManual()">+ Agregar Lote</button>
+                
+                <hr style="border-color: #4a5568; margin: 25px 0;">
+                <button class="btn-remove btn" onclick="limpiarMapa()">Quitar Lotes Visibles</button>
             </div>
-            <div class="form-group">
-                <label>Coordenadas (Google Earth)</label>
-                <input type="text" id="input-coords" placeholder="35°32'56.51&quot;S 60°54'55.33&quot;W">
+            
+            <!-- Barra azul colapsada -->
+            <div class="collapsed-bar collapsed-bar-left" onclick="toggleLeft()" title="Expandir panel">
+                ▶
             </div>
-            <button class="btn btn-add" onclick="agregarLoteManual()">+ Agregar Lote</button>
-            <hr style="border-color: #4a5568; margin: 25px 0;">
-            <button class="btn btn-remove" onclick="limpiarMapa()">Quitar Lotes Visibles</button>
         </div>
 
         <!-- Visor Espacial -->
         <div id="map"></div>
 
-        <!-- Carpeta de Análisis -->
+        <!-- ==========================================
+             PANEL DERECHO (Carpeta de Análisis)
+             ========================================== -->
         <div id="sidebar-right">
-            <div class="lote-header">
-                <h3 id="panel-titulo">Cargando...</h3>
+            <div class="content-right">
+                <div class="header-right">
+                    <button class="btn-collapse" onclick="toggleRight()" title="Replegar panel">▶</button>
+                    <h3 id="panel-titulo">Cargando...</h3>
+                </div>
                 <div class="lote-estado" id="panel-estado">Cultivo Activo: Trigo (Encañazón)</div>
+
+                <!-- Pestaña 1: Actividades -->
+                <details open>
+                    <summary>Actividades del lote</summary>
+                    <div class="tab-content">
+                        <ul class="activity-list">
+                            <li>
+                                <span class="act-date">27/6</span>
+                                <span><strong>Barbecho Químico:</strong> 1.5L Glifo + 1L 2,4-D + 200cc Humectante + 1L Cletodim (para raigrás RR).</span>
+                            </li>
+                            <li>
+                                <span class="act-date">13/7</span>
+                                <span><strong>Siembra:</strong> Trigo DM Tipa (125 kg/ha). Ferti: MAP Variable (105.8 kg/ha prom).</span>
+                            </li>
+                            <li>
+                                <span class="act-date">15/7</span>
+                                <span><strong>Preemergente:</strong> Finesse 15g/ha + 100cc Humectante.</span>
+                            </li>
+                            <li>
+                                <span class="act-date">11/8</span>
+                                <span><strong>Refertilización:</strong> Urea al voleo variable. Rango de 150 a 300 kg/ha (Lomas).</span>
+                            </li>
+                        </ul>
+                    </div>
+                </details>
+
+                <!-- Pestaña 2: Rendimiento -->
+                <details>
+                    <summary>Historial de rendimiento del lote</summary>
+                    <div class="tab-content">
+                        <em>Base de datos en construcción. Requiere integración con mapas de cosecha (formato .shp o .tiff) de la maquinaria.</em>
+                    </div>
+                </details>
+
+                <!-- Pestaña 3: Acumulados -->
+                <details>
+                    <summary>Datos históricos acumulados</summary>
+                    <div class="tab-content">
+                        <em>Base de datos en construcción. Espacio reservado para registros de precipitaciones, extracciones de fósforo y rotaciones.</em>
+                    </div>
+                </details>
             </div>
 
-            <!-- Pestaña 1: Actividades -->
-            <details open>
-                <summary>Actividades del lote</summary>
-                <div class="tab-content">
-                    <ul class="activity-list">
-                        <li>
-                            <span class="act-date">27/6</span>
-                            <span><strong>Barbecho Químico:</strong> 1.5L Glifo + 1L 2,4-D + 200cc Humectante + 1L Cletodim (para raigrás RR).</span>
-                        </li>
-                        <li>
-                            <span class="act-date">13/7</span>
-                            <span><strong>Siembra:</strong> Trigo DM Tipa (125 kg/ha). Ferti: MAP Variable (105.8 kg/ha prom).</span>
-                        </li>
-                        <li>
-                            <span class="act-date">15/7</span>
-                            <span><strong>Preemergente:</strong> Finesse 15g/ha + 100cc Humectante.</span>
-                        </li>
-                        <li>
-                            <span class="act-date">11/8</span>
-                            <span><strong>Refertilización:</strong> Urea al voleo variable. Rango de 150 a 300 kg/ha (Lomas).</span>
-                        </li>
-                    </ul>
-                </div>
-            </details>
-
-            <!-- Pestaña 2: Rendimiento -->
-            <details>
-                <summary>Historial de rendimiento del lote</summary>
-                <div class="tab-content">
-                    <em>Base de datos en construcción. Requiere integración con mapas de cosecha (formato .shp o .tiff) de la maquinaria.</em>
-                </div>
-            </details>
-
-            <!-- Pestaña 3: Acumulados -->
-            <details>
-                <summary>Datos históricos acumulados</summary>
-                <div class="tab-content">
-                    <em>Base de datos en construcción. Espacio reservado para registros de precipitaciones, extracciones de fósforo y rotaciones.</em>
-                </div>
-            </details>
+            <!-- Barra azul colapsada -->
+            <div class="collapsed-bar collapsed-bar-right" onclick="toggleRight()" title="Expandir panel">
+                ◀
+            </div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         var map;
-        var marcadores = []; // Array para almacenar los pines
+        var marcadores = [];
 
-        // Función para convertir grados, minutos y segundos a decimales
+        // Lógica de colapsado y re-renderizado del mapa
+        function toggleLeft() {
+            document.getElementById('sidebar-left').classList.toggle('is-collapsed');
+            setTimeout(() => { if(map) map.invalidateSize(); }, 350);
+        }
+
+        function toggleRight() {
+            document.getElementById('sidebar-right').classList.toggle('is-collapsed');
+            setTimeout(() => { if(map) map.invalidateSize(); }, 350);
+        }
+
         function parseDMS(dmsStr) {
-            // Expresión regular para capturar la estructura: 35°32'56.51"S
             var regex = /(\d+)[°º]\s*(\d+)['´]\s*([\d\.]+)(?:''|")\s*([NSWE])/gi;
             var match;
             var coords = [];
@@ -134,54 +203,51 @@
                 var minutes = parseFloat(match[2]);
                 var seconds = parseFloat(match[3]);
                 var direction = match[4].toUpperCase();
-                
                 var decimal = degrees + (minutes / 60) + (seconds / 3600);
                 
-                // Si es Sur (S) u Oeste (W), el valor decimal debe ser negativo
-                if (direction === 'S' || direction === 'W') {
-                    decimal = decimal * -1;
-                }
+                if (direction === 'S' || direction === 'W') decimal = decimal * -1;
                 coords.push(decimal);
             }
-            return coords; // Devuelve un array [latitud_decimal, longitud_decimal]
+            return coords; 
         }
 
-        // Inicialización del motor geográfico
         function initMap() {
-            map = L.map('map').setView([-35.4444, -60.8831], 11); // Centrado en 9 de Julio
+            map = L.map('map').setView([-35.4444, -60.8831], 11);
 
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
             }).addTo(map);
         }
 
-        // Lógica para crear pines interactivos
         function agregarPin(coords, nombre) {
             var pin = L.marker(coords).addTo(map);
-            
-            // 1 clic: Muestra el nombre
             pin.bindTooltip(nombre, {permanent: false, direction: 'top'});
 
-            // Doble clic: Zoom máximo y abrir panel
             pin.on('dblclick', function() {
                 map.flyTo(coords, 17, { animate: true, duration: 1.5 });
-                document.getElementById('sidebar-right').style.display = 'block';
+                
+                // Asegurar que el panel derecho se abra y esté expandido
+                let panelRight = document.getElementById('sidebar-right');
+                panelRight.classList.add('active');
+                panelRight.classList.remove('is-collapsed');
+                
                 document.getElementById('panel-titulo').innerText = nombre;
                 
-                // Lógica simple para estado (ampliable a futuro)
-                if(nombre.toLowerCase().includes("solavarrieta")) {
+                if(nombre.toLowerCase().includes("solavarrieta") || nombre.toLowerCase().includes("1")) {
                     document.getElementById('panel-estado').innerText = "Cultivo Activo: Trigo (Encañazón)";
                     document.getElementById('panel-estado').style.background = "#38a169";
                 } else {
                     document.getElementById('panel-estado').innerText = "Estado: Barbecho / Análisis Pendiente";
                     document.getElementById('panel-estado').style.background = "#d69e2e";
                 }
+
+                // Ajustar el mapa al nuevo tamaño de ventana
+                setTimeout(() => { map.invalidateSize(); }, 350);
             });
 
             marcadores.push(pin);
         }
 
-        // Interfaz de Usuario: Agregar manualmente
         function agregarLoteManual() {
             var coordsStr = document.getElementById('input-coords').value;
             var nom = document.getElementById('input-nombre').value;
@@ -192,33 +258,26 @@
             }
 
             var parsedCoords = parseDMS(coordsStr);
-            
-            // Validar que se hayan detectado correctamente latitud y longitud
             if(parsedCoords.length !== 2) {
-                alert("Formato no válido. Asegúrese de copiar la coordenada exactamente como en Google Earth (ej. 35°32'56.51\"S 60°54'55.33\"W).");
+                alert("Formato no válido. Ejemplo: 35°32'56.51\"S 60°54'55.33\"W");
                 return;
             }
 
             agregarPin([parsedCoords[0], parsedCoords[1]], nom);
-            
-            // Acercar la cámara al lote nuevo
             map.flyTo([parsedCoords[0], parsedCoords[1]], 16); 
             
-            // Limpiar los inputs después de cargar
             document.getElementById('input-nombre').value = "";
             document.getElementById('input-coords').value = "";
         }
 
-        // Interfaz de Usuario: Limpiar mapa
         function limpiarMapa() {
             for (var i = 0; i < marcadores.length; i++) {
                 map.removeLayer(marcadores[i]);
             }
-            marcadores = []; // Vaciar array
-            document.getElementById('sidebar-right').style.display = 'none';
+            marcadores = []; 
+            document.getElementById('sidebar-right').classList.remove('active');
         }
 
-        // Ejecutar al cargar la ventana
         window.onload = initMap;
     </script>
 </body>
