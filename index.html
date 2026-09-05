@@ -3,172 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Agro Quant</title>
-    <!-- Incluir CSS de Leaflet para el mapa -->
+    <title>AF - Terminal Espacial</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a202c; color: white;}
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a202c; color: white; overflow: hidden; }
         
-        /* Estilos del Login */
-        #login-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #1a202c; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: #2d3748; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); text-align: center; width: 300px; border-top: 4px solid #3182ce; }
-        .login-box h2 { margin-top: 0; color: #63b3ed; }
-        .login-box input { width: 90%; padding: 10px; margin: 10px 0; border: none; border-radius: 4px; background: #4a5568; color: white; }
-        .login-box button { width: 100%; padding: 10px; background: #3182ce; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 15px;}
-        .login-box button:hover { background: #2b6cb0; }
+        /* Layout Principal */
+        #app-container { display: flex; height: 100vh; width: 100vw; }
+        
+        /* Panel Izquierdo (Edición) */
+        #sidebar-left { width: 250px; background: #2d3748; padding: 15px; box-sizing: border-box; border-right: 1px solid #4a5568; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
+        #sidebar-left h2 { color: #63b3ed; margin-top: 0; font-size: 22px; border-bottom: 2px solid #3182ce; padding-bottom: 10px;}
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 4px; }
+        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; color: white; border: 1px solid #718096; border-radius: 4px; }
+        .btn { width: 100%; padding: 10px; margin-top: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-add { background: #3182ce; color: white; }
+        .btn-add:hover { background: #2b6cb0; }
+        .btn-remove { background: #e53e3e; color: white; margin-top: 20px; }
+        .btn-remove:hover { background: #c53030; }
 
-        /* Estilos de la Terminal (Mapa y Panel) */
-        #app-container { display: none; height: 100%; width: 100%; }
-        #map { height: 100%; width: 70%; float: left; }
-        #sidebar { height: 100%; width: 30%; float: left; background: #2d3748; padding: 20px; box-sizing: border-box; overflow-y: auto; border-left: 1px solid #4a5568; }
+        /* Mapa Central */
+        #map { flex-grow: 1; height: 100%; z-index: 1; }
+
+        /* Panel Derecho (Datos del Lote) */
+        #sidebar-right { width: 350px; background: #2d3748; padding: 20px; box-sizing: border-box; border-left: 1px solid #4a5568; display: none; overflow-y: auto; z-index: 1000; box-shadow: -2px 0 5px rgba(0,0,0,0.5); }
+        .lote-header { margin-bottom: 20px; }
+        .lote-header h3 { margin: 0; color: #63b3ed; font-size: 24px; }
+        .lote-estado { display: inline-block; background: #38a169; color: white; padding: 4px 8px; border-radius: 4px; font-size: 13px; font-weight: bold; margin-top: 8px; }
+
+        /* Pestañas Acordeón */
+        details { background: #4a5568; margin-bottom: 10px; border-radius: 6px; overflow: hidden; }
+        summary { padding: 12px; font-weight: bold; cursor: pointer; background: #2b6cb0; outline: none; }
+        summary:hover { background: #2c5282; }
+        .tab-content { padding: 15px; font-size: 13px; line-height: 1.5; color: #e2e8f0; }
         
-        .carpeta-header { border-bottom: 2px solid #3182ce; padding-bottom: 10px; margin-bottom: 20px; }
-        .carpeta-header h3 { margin: 0; color: #63b3ed; font-size: 24px; }
-        
-        .data-card { background: #4a5568; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
-        .data-card h4 { margin: 0 0 10px 0; color: #e2e8f0; font-size: 16px; border-bottom: 1px solid #718096; padding-bottom: 5px;}
-        .data-item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
-        .data-value { font-weight: bold; color: #90cdf4; }
-        .tag-alerta { background: #c53030; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        /* Lista de actividades */
+        .activity-list { list-style: none; padding: 0; margin: 0; }
+        .activity-list li { border-bottom: 1px solid #718096; padding: 8px 0; display: flex; justify-content: space-between; }
+        .activity-list li:last-child { border-bottom: none; }
+        .act-date { color: #90cdf4; font-weight: bold; min-width: 45px; }
     </style>
 </head>
 <body>
 
-    <!-- Pantalla de Login -->
-    <div id="login-screen">
-        <div class="login-box">
-            <h2>Agro Quant</h2>
-            <p>Acceso Seguro</p>
-            <input type="text" id="user" value="saul.ambrosoni" placeholder="Usuario">
-            <input type="password" id="pass" value="********" placeholder="Contraseña">
-            <button onclick="iniciarSesion()">Ingresar a la Terminal</button>
-        </div>
-    </div>
-
-    <!-- Contenedor Principal de la App -->
     <div id="app-container">
+        <!-- Herramientas de Edición -->
+        <div id="sidebar-left">
+            <h2>AF | Geo-Editor</h2>
+            <div class="form-group">
+                <label>Nombre del Lote</label>
+                <input type="text" id="input-nombre" placeholder="Ej. La Aguada">
+            </div>
+            <div class="form-group">
+                <label>Latitud</label>
+                <input type="text" id="input-lat" placeholder="-35.4200">
+            </div>
+            <div class="form-group">
+                <label>Longitud</label>
+                <input type="text" id="input-lng" placeholder="-60.9000">
+            </div>
+            <button class="btn btn-add" onclick="agregarLoteManual()">+ Agregar Lote</button>
+            <hr style="border-color: #4a5568; margin: 25px 0;">
+            <button class="btn btn-remove" onclick="limpiarMapa()">Quitar Lotes Visibles</button>
+        </div>
+
+        <!-- Visor Espacial -->
         <div id="map"></div>
-        <div id="sidebar">
-            <div id="default-msg">
-                <h3 style="color: #a0aec0; text-align: center; margin-top: 50%;">Seleccione un pin en el mapa para abrir la carpeta del lote.</h3>
+
+        <!-- Carpeta de Análisis -->
+        <div id="sidebar-right">
+            <div class="lote-header">
+                <h3 id="panel-titulo">Cargando...</h3>
+                <div class="lote-estado" id="panel-estado">Cultivo Activo: Trigo (Encañazón)</div>
             </div>
-            
-            <!-- Carpeta del Lote (Oculta por defecto) -->
-            <div id="lote-data" style="display: none;">
-                <div class="carpeta-header">
-                    <h3 id="lote-nombre">Lote Solavarrieta</h3>
-                    <p style="margin: 5px 0 0 0; color: #a0aec0; font-size: 14px;">Trigo DM Tipa | 19 Hectáreas</p>
+
+            <!-- Pestaña 1: Actividades -->
+            <details open>
+                <summary>Actividades del lote</summary>
+                <div class="tab-content">
+                    <ul class="activity-list">
+                        <li>
+                            <span class="act-date">27/6</span>
+                            <span><strong>Barbecho Químico:</strong> 1.5L Glifo + 1L 2,4-D + 200cc Humectante + 1L Cletodim (para raigrás RR).</span>
+                        </li>
+                        <li>
+                            <span class="act-date">13/7</span>
+                            <span><strong>Siembra:</strong> Trigo DM Tipa (125 kg/ha). Ferti: MAP Variable (105.8 kg/ha prom).</span>
+                        </li>
+                        <li>
+                            <span class="act-date">15/7</span>
+                            <span><strong>Preemergente:</strong> Finesse 15g/ha + 100cc Humectante.</span>
+                        </li>
+                        <li>
+                            <span class="act-date">11/8</span>
+                            <span><strong>Refertilización:</strong> Urea al voleo variable. Rango de 150 a 300 kg/ha (Lomas).</span>
+                        </li>
+                    </ul>
                 </div>
+            </details>
 
-                <div class="data-card">
-                    <h4>Nutrición Aplicada</h4>
-                    <div class="data-item"><span>Fertilización Base (MAP):</span> <span class="data-value">105.8 kg/ha</span></div>
-                    <div class="data-item"><span>Refertilización (Urea):</span> <span class="data-value">254.3 kg/ha</span></div>
-                    <div class="data-item"><span>Dosis Máxima Loma:</span> <span class="data-value tag-alerta">300 kg/ha</span></div>
+            <!-- Pestaña 2: Rendimiento -->
+            <details>
+                <summary>Historial de rendimiento del lote</summary>
+                <div class="tab-content">
+                    <em>Base de datos en construcción. Requiere integración con mapas de cosecha (formato .shp o .tiff) de la maquinaria.</em>
                 </div>
+            </details>
 
-                <div class="data-card">
-                    <h4>Gestión de Riesgo (Cobertura)</h4>
-                    <div class="data-item"><span>Aseguradora:</span> <span class="data-value">San Cristóbal</span></div>
-                    <div class="data-item"><span>Riesgos:</span> <span class="data-value">Granizo + Incendio + Helada</span></div>
-                    <div class="data-item"><span>Suma Asegurada:</span> <span class="data-value">U$S 1.000 / ha</span></div>
-                    <div class="data-item"><span>Costo Asignado:</span> <span class="data-value">U$S 40.00 / ha</span></div>
+            <!-- Pestaña 3: Acumulados -->
+            <details>
+                <summary>Datos históricos acumulados</summary>
+                <div class="tab-content">
+                    <em>Base de datos en construcción. Espacio reservado para registros de precipitaciones, extracciones de fósforo y rotaciones.</em>
                 </div>
-
-                <div class="data-card" style="border-left: 4px solid #68d391;">
-                    <h4>Finanzas</h4>
-                    <div class="data-item"><span>Arrendamiento Asignado:</span> <span class="data-value">5.2 qq Soja/ha</span></div>
-                    <div class="data-item"><span>Estado Fenológico:</span> <span class="data-value">Encanezón</span></div>
-                </div>
-
-                <!-- MÓDULO: Terminal de Márgenes (Dinámico) -->
-                <div class="data-card" style="border-left: 4px solid #ecc94b; margin-top: 15px;">
-                    <h4>Terminal de Márgenes (Dinámico)</h4>
-                    
-                    <div style="margin-bottom: 10px;">
-                        <label style="font-size: 12px; color: #a0aec0;">Precio Trigo Esperado (U$S/tn):</label>
-                        <input type="number" id="precio-trigo" value="210" style="width: 100%; padding: 5px; margin-top: 3px; background: #2d3748; color: white; border: 1px solid #718096; border-radius: 4px; box-sizing: border-box;">
-                    </div>
-                    
-                    <div style="margin-bottom: 10px;">
-                        <label style="font-size: 12px; color: #a0aec0;">Precio Soja Alquiler (U$S/tn):</label>
-                        <input type="number" id="precio-soja" value="290" style="width: 100%; padding: 5px; margin-top: 3px; background: #2d3748; color: white; border: 1px solid #718096; border-radius: 4px; box-sizing: border-box;">
-                    </div>
-
-                    <button onclick="calcularIndiferencia()" style="width: 100%; padding: 8px; background: #d69e2e; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Calcular Rinde de Indiferencia</button>
-                    
-                    <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #718096;">
-                        <div class="data-item"><span>Indiferencia Física:</span> <span class="data-value" id="resultado-rinde" style="color: #ecc94b;">-- qq/ha</span></div>
-                    </div>
-                </div>
-
-            </div>
+            </details>
         </div>
     </div>
 
-    <!-- Script de Leaflet y Lógica -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Función de Login Simulado
-        function iniciarSesion() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-container').style.display = 'block';
-            inicializarMapa();
-        }
+        var map;
+        var marcadores = []; // Array para almacenar los pines
 
-        function inicializarMapa() {
-            // Centrar el mapa en 9 de Julio, Buenos Aires
-            var map = L.map('map').setView([-35.4444, -60.8831], 11);
+        // Inicialización del motor geográfico
+        function initMap() {
+            map = L.map('map').setView([-35.4444, -60.8831], 11); // Centrado en 9 de Julio
 
-            // Capa de satélite de Esri
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
             }).addTo(map);
 
-            // Crear un Pin para el lote Solavarrieta
-            var pinSolavarrieta = L.marker([-35.4200, -60.9000]).addTo(map);
-            pinSolavarrieta.bindTooltip("Lote 1: Solavarrieta", {permanent: false, direction: 'top'});
+            // Cargar lote base
+            agregarPin([-35.4200, -60.9000], "Solavarrieta");
+        }
 
-            // Acción al hacer clic en el pin
-            pinSolavarrieta.on('click', function() {
-                document.getElementById('default-msg').style.display = 'none';
-                document.getElementById('lote-data').style.display = 'block';
-                // Calcular por defecto al abrir el lote
-                calcularIndiferencia(); 
+        // Lógica para crear pines interactivos
+        function agregarPin(coords, nombre) {
+            var pin = L.marker(coords).addTo(map);
+            
+            // 1 clic: Muestra el nombre
+            pin.bindTooltip(nombre, {permanent: false, direction: 'top'});
+
+            // Doble clic: Zoom máximo y abrir panel
+            pin.on('dblclick', function() {
+                map.flyTo(coords, 17, { animate: true, duration: 1.5 });
+                document.getElementById('sidebar-right').style.display = 'block';
+                document.getElementById('panel-titulo').innerText = nombre;
+                
+                // Lógica simple para estado (ampliable a futuro)
+                if(nombre.toLowerCase().includes("solavarrieta")) {
+                    document.getElementById('panel-estado').innerText = "Cultivo Activo: Trigo (Encañazón)";
+                    document.getElementById('panel-estado').style.background = "#38a169";
+                } else {
+                    document.getElementById('panel-estado').innerText = "Estado: Barbecho / Análisis Pendiente";
+                    document.getElementById('panel-estado').style.background = "#d69e2e";
+                }
             });
+
+            marcadores.push(pin);
         }
 
-        // NUEVA FUNCIÓN: Cálculo de Indiferencia (Actualizada)
-        function calcularIndiferencia() {
-            // 1. Obtener valores del mercado desde los inputs
-            const precioTrigoTn = parseFloat(document.getElementById('precio-trigo').value);
-            const precioSojaTn = parseFloat(document.getElementById('precio-soja').value);
-            
-            // Pasamos precios a quintales (1 tn = 10 qq)
-            const precioTrigoQq = precioTrigoTn / 10;
-            const precioSojaQq = precioSojaTn / 10;
+        // Interfaz de Usuario: Agregar manualmente
+        function agregarLoteManual() {
+            var lat = parseFloat(document.getElementById('input-lat').value);
+            var lng = parseFloat(document.getElementById('input-lng').value);
+            var nom = document.getElementById('input-nombre').value;
 
-            // 2. Costos hundidos (Hardcodeados para el lote Solavarrieta por ahora)
-            const costoSeguro = 40; // U$S/ha (San Cristóbal)
-            const costoFertilizanteAgroquimicos = 320; // U$S/ha (Estimado de Urea + MAP + Barbecho)
-            const costoLabores = 90; // U$S/ha (Siembra y pulverizaciones)
-            
-            // 3. Cálculo del alquiler en dólares (5.2 qq de soja)
-            const costoAlquilerUSD = 5.2 * precioSojaQq;
-
-            // 4. Ecuación total
-            const costoTotalUSD = costoSeguro + costoFertilizanteAgroquimicos + costoLabores + costoAlquilerUSD;
-            
-            // 5. Rinde de indiferencia (Costo Total / Precio del Trigo)
-            const rindeIndiferencia = costoTotalUSD / precioTrigoQq;
-
-            // 6. Actualizar la interfaz
-            document.getElementById('resultado-rinde').innerText = rindeIndiferencia.toFixed(2) + ' qq/ha';
-            
-            // Pequeño efecto visual
-            document.getElementById('resultado-rinde').style.textShadow = "0 0 8px #ecc94b";
-            setTimeout(() => { document.getElementById('resultado-rinde').style.textShadow = "none"; }, 500);
+            if (isNaN(lat) || isNaN(lng) || nom === "") {
+                alert("Por favor, complete todos los campos correctamente.");
+                return;
+            }
+            agregarPin([lat, lng], nom);
+            map.flyTo([lat, lng], 14); // Acercar al lote nuevo
         }
+
+        // Interfaz de Usuario: Limpiar mapa
+        function limpiarMapa() {
+            for (var i = 0; i < marcadores.length; i++) {
+                map.removeLayer(marcadores[i]);
+            }
+            marcadores = []; // Vaciar array
+            document.getElementById('sidebar-right').style.display = 'none';
+        }
+
+        // Ejecutar al cargar la ventana
+        window.onload = initMap;
     </script>
 </body>
 </html>
