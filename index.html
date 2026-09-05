@@ -14,38 +14,38 @@
         /* ============================
            PANEL IZQUIERDO (Geo-Editor)
            ============================ */
-        #sidebar-left { width: 250px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); overflow: hidden; }
-        #sidebar-left.is-collapsed { width: 35px; background: #3182ce; }
+        #sidebar-left { width: 250px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; }
+        #sidebar-left.is-collapsed { width: 35px; background: #276749; } /* Verde Oscuro AF */
         
-        .content-left { width: 250px; padding: 15px; box-sizing: border-box; transition: opacity 0.2s ease; height: 100%; overflow-y: auto; }
+        .content-left { width: 250px; padding: 15px; box-sizing: border-box; transition: opacity 0.2s ease; height: 100%; display: flex; flex-direction: column; }
         #sidebar-left.is-collapsed .content-left { opacity: 0; pointer-events: none; }
 
-        .header-left { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3182ce; padding-bottom: 10px; margin-bottom: 15px; }
-        .header-left h2 { color: #63b3ed; margin: 0; font-size: 20px; }
+        .header-left { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #276749; padding-bottom: 10px; margin-bottom: 15px; flex-shrink: 0;}
+        .header-left h2 { color: #68d391; margin: 0; font-size: 20px; }
         
         /* ============================
            PANEL DERECHO (Carpeta Lote)
            ============================ */
         #sidebar-right { width: 350px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: -2px 0 5px rgba(0,0,0,0.5); overflow: hidden; display: none; }
         #sidebar-right.active { display: block; }
-        #sidebar-right.is-collapsed { width: 35px; background: #3182ce; }
+        #sidebar-right.is-collapsed { width: 35px; background: #276749; }
         
         .content-right { width: 350px; padding: 20px; box-sizing: border-box; transition: opacity 0.2s ease; height: 100%; overflow-y: auto; }
         #sidebar-right.is-collapsed .content-right { opacity: 0; pointer-events: none; }
 
         .header-right { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-        .header-right h3 { margin: 0; color: #63b3ed; font-size: 24px; }
+        .header-right h3 { margin: 0; color: #68d391; font-size: 24px; }
         .lote-estado { display: inline-block; background: #38a169; color: white; padding: 4px 8px; border-radius: 4px; font-size: 13px; font-weight: bold; margin-top: 8px; margin-bottom: 15px; }
 
         /* ============================
            BOTONES Y BARRAS COLAPSABLES
            ============================ */
-        .btn-collapse { background: transparent; border: none; color: #63b3ed; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .btn-collapse { background: transparent; border: none; color: #68d391; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: color 0.2s; }
         .btn-collapse:hover { color: white; }
 
-        /* Las barras azules que quedan al replegar */
-        .collapsed-bar { position: absolute; top: 0; height: 100%; width: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 20px; font-weight: bold; background: #3182ce; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 10; }
-        .collapsed-bar:hover { background: #2b6cb0; }
+        /* Las barras verdes que quedan al replegar */
+        .collapsed-bar { position: absolute; top: 0; height: 100%; width: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 20px; font-weight: bold; background: #276749; opacity: 0; pointer-events: none; transition: background 0.3s ease, opacity 0.3s ease; z-index: 10; }
+        .collapsed-bar:hover { background: #22543d; }
         .collapsed-bar-left { right: 0; }
         .collapsed-bar-right { left: 0; }
         
@@ -53,32 +53,42 @@
         #sidebar-right.is-collapsed .collapsed-bar { opacity: 1; pointer-events: auto; }
 
         /* ============================
-           COMPONENTES INTERNOS
+           COMPONENTES INTERNOS (Elegantes)
            ============================ */
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; flex-shrink: 0; }
         .form-group label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 4px; }
-        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; color: white; border: 1px solid #718096; border-radius: 4px; font-family: monospace; font-size: 11px; }
+        .form-group input { width: 100%; padding: 10px; box-sizing: border-box; background: #1a202c; color: white; border: 1px solid #4a5568; border-radius: 6px; font-family: monospace; font-size: 12px; transition: border-color 0.2s; outline: none; }
+        .form-group input:focus { border-color: #68d391; }
         
-        .btn { width: 100%; padding: 10px; margin-top: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-add { background: #3182ce; color: white; }
-        .btn-add:hover { background: #2b6cb0; }
-        .btn-remove { background: #e53e3e; color: white; margin-top: 20px; }
-        .btn-remove:hover { background: #c53030; }
+        .btn { width: 100%; padding: 10px; margin-top: 5px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2); flex-shrink: 0; }
+        .btn-add { background: #2f855a; color: white; }
+        .btn-add:hover { background: #276749; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn-remove { background: #c53030; color: white; margin-top: 15px; }
+        .btn-remove:hover { background: #9b2c2c; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+
+        /* ============================
+           LISTADO DE LOTES
+           ============================ */
+        .lotes-container { margin-top: 20px; flex-grow: 1; overflow-y: auto; border-top: 1px solid #4a5568; padding-top: 15px; }
+        .lotes-container h4 { margin: 0 0 10px 0; color: #a0aec0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .lotes-list { list-style: none; padding: 0; margin: 0; }
+        .lote-item { background: #1a202c; padding: 10px 12px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #e2e8f0; border-left: 3px solid #2f855a; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
+        .lote-item:hover { background: #4a5568; border-left-color: #68d391; transform: translateX(2px); }
 
         /* Mapa Central */
         #map { flex-grow: 1; height: 100%; z-index: 1; }
 
         /* Pestañas Acordeón */
-        details { background: #4a5568; margin-bottom: 10px; border-radius: 6px; overflow: hidden; }
-        summary { padding: 12px; font-weight: bold; cursor: pointer; background: #2b6cb0; outline: none; }
-        summary:hover { background: #2c5282; }
-        .tab-content { padding: 15px; font-size: 13px; line-height: 1.5; color: #e2e8f0; }
+        details { background: #4a5568; margin-bottom: 10px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        summary { padding: 14px; font-weight: 600; cursor: pointer; background: #2f855a; outline: none; transition: background 0.2s; }
+        summary:hover { background: #276749; }
+        .tab-content { padding: 15px; font-size: 13px; line-height: 1.6; color: #e2e8f0; }
         
         /* Lista de actividades */
         .activity-list { list-style: none; padding: 0; margin: 0; }
-        .activity-list li { border-bottom: 1px solid #718096; padding: 8px 0; display: flex; justify-content: space-between; }
+        .activity-list li { border-bottom: 1px solid #718096; padding: 10px 0; display: flex; justify-content: space-between; }
         .activity-list li:last-child { border-bottom: none; }
-        .act-date { color: #90cdf4; font-weight: bold; min-width: 45px; }
+        .act-date { color: #68d391; font-weight: bold; min-width: 45px; }
     </style>
 </head>
 <body>
@@ -102,13 +112,20 @@
                     <label>Coordenadas (Google Earth)</label>
                     <input type="text" id="input-coords" placeholder="35°32'56.51&quot;S 60°54'55.33&quot;W">
                 </div>
-                <button class="btn-add btn" onclick="agregarLoteManual()">+ Agregar Lote</button>
+                <button class="btn-add btn" onclick="agregarLoteManual()">+ Guardar Lote</button>
                 
-                <hr style="border-color: #4a5568; margin: 25px 0;">
-                <button class="btn-remove btn" onclick="limpiarMapa()">Quitar Lotes Visibles</button>
+                <!-- Listado Dinámico de Lotes -->
+                <div class="lotes-container">
+                    <h4>Lotes Activos</h4>
+                    <ul class="lotes-list" id="lista-lotes">
+                        <!-- Los lotes se insertan aquí vía JS -->
+                    </ul>
+                </div>
+
+                <button class="btn-remove btn" onclick="limpiarMapa()">Quitar Todos los Lotes</button>
             </div>
             
-            <!-- Barra azul colapsada -->
+            <!-- Barra verde colapsada -->
             <div class="collapsed-bar collapsed-bar-left" onclick="toggleLeft()" title="Expandir panel">
                 ▶
             </div>
@@ -170,7 +187,7 @@
                 </details>
             </div>
 
-            <!-- Barra azul colapsada -->
+            <!-- Barra verde colapsada -->
             <div class="collapsed-bar collapsed-bar-right" onclick="toggleRight()" title="Expandir panel">
                 ◀
             </div>
@@ -223,29 +240,49 @@
             var pin = L.marker(coords).addTo(map);
             pin.bindTooltip(nombre, {permanent: false, direction: 'top'});
 
+            // Acción del PIN (Doble clic)
             pin.on('dblclick', function() {
-                map.flyTo(coords, 17, { animate: true, duration: 1.5 });
-                
-                // Asegurar que el panel derecho se abra y esté expandido
-                let panelRight = document.getElementById('sidebar-right');
-                panelRight.classList.add('active');
-                panelRight.classList.remove('is-collapsed');
-                
-                document.getElementById('panel-titulo').innerText = nombre;
-                
-                if(nombre.toLowerCase().includes("solavarrieta") || nombre.toLowerCase().includes("1")) {
-                    document.getElementById('panel-estado').innerText = "Cultivo Activo: Trigo (Encañazón)";
-                    document.getElementById('panel-estado').style.background = "#38a169";
-                } else {
-                    document.getElementById('panel-estado').innerText = "Estado: Barbecho / Análisis Pendiente";
-                    document.getElementById('panel-estado').style.background = "#d69e2e";
-                }
-
-                // Ajustar el mapa al nuevo tamaño de ventana
-                setTimeout(() => { map.invalidateSize(); }, 350);
+                abrirCarpetaLote(coords, nombre);
             });
 
             marcadores.push(pin);
+
+            // Agregar al listado visual del panel izquierdo
+            agregarItemLista(coords, nombre);
+        }
+
+        function abrirCarpetaLote(coords, nombre) {
+            map.flyTo(coords, 17, { animate: true, duration: 1.5 });
+            
+            let panelRight = document.getElementById('sidebar-right');
+            panelRight.classList.add('active');
+            panelRight.classList.remove('is-collapsed');
+            
+            document.getElementById('panel-titulo').innerText = nombre;
+            
+            if(nombre.toLowerCase().includes("solavarrieta") || nombre.toLowerCase().includes("1")) {
+                document.getElementById('panel-estado').innerText = "Cultivo Activo: Trigo (Encañazón)";
+                document.getElementById('panel-estado').style.background = "#38a169";
+            } else {
+                document.getElementById('panel-estado').innerText = "Estado: Barbecho / Análisis Pendiente";
+                document.getElementById('panel-estado').style.background = "#d69e2e";
+            }
+
+            setTimeout(() => { map.invalidateSize(); }, 350);
+        }
+
+        function agregarItemLista(coords, nombre) {
+            var lista = document.getElementById('lista-lotes');
+            var item = document.createElement('li');
+            item.className = 'lote-item';
+            item.innerHTML = `<span>📍 ${nombre}</span>`;
+            
+            // Al hacer clic en la lista, viajamos al lote y abrimos la carpeta
+            item.onclick = function() {
+                abrirCarpetaLote(coords, nombre);
+            };
+            
+            lista.appendChild(item);
         }
 
         function agregarLoteManual() {
@@ -271,10 +308,16 @@
         }
 
         function limpiarMapa() {
+            // Borrar pines del mapa
             for (var i = 0; i < marcadores.length; i++) {
                 map.removeLayer(marcadores[i]);
             }
             marcadores = []; 
+            
+            // Borrar listado del menú izquierdo
+            document.getElementById('lista-lotes').innerHTML = "";
+            
+            // Cerrar menú derecho
             document.getElementById('sidebar-right').classList.remove('active');
         }
 
