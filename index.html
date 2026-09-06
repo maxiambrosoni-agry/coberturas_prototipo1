@@ -15,7 +15,7 @@
            PANEL IZQUIERDO (Geo-Editor)
            ============================ */
         #sidebar-left { width: 250px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; }
-        #sidebar-left.is-collapsed { width: 35px; background: #276749; } /* Verde Oscuro AF */
+        #sidebar-left.is-collapsed { width: 35px; background: #276749; } 
         
         .content-left { width: 250px; padding: 15px; box-sizing: border-box; transition: opacity 0.2s ease; height: 100%; display: flex; flex-direction: column; }
         #sidebar-left.is-collapsed .content-left { opacity: 0; pointer-events: none; }
@@ -43,7 +43,6 @@
         .btn-collapse { background: transparent; border: none; color: #68d391; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: color 0.2s; }
         .btn-collapse:hover { color: white; }
 
-        /* Las barras verdes que quedan al replegar */
         .collapsed-bar { position: absolute; top: 0; height: 100%; width: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 20px; font-weight: bold; background: #276749; opacity: 0; pointer-events: none; transition: background 0.3s ease, opacity 0.3s ease; z-index: 10; }
         .collapsed-bar:hover { background: #22543d; }
         .collapsed-bar-left { right: 0; }
@@ -53,7 +52,7 @@
         #sidebar-right.is-collapsed .collapsed-bar { opacity: 1; pointer-events: auto; }
 
         /* ============================
-           COMPONENTES INTERNOS (Elegantes)
+           COMPONENTES INTERNOS 
            ============================ */
         .form-group { margin-bottom: 15px; flex-shrink: 0; }
         .form-group label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 4px; }
@@ -199,7 +198,6 @@
         var map;
         var marcadores = [];
 
-        // Lógica de colapsado y re-renderizado del mapa
         function toggleLeft() {
             document.getElementById('sidebar-left').classList.toggle('is-collapsed');
             setTimeout(() => { if(map) map.invalidateSize(); }, 350);
@@ -231,8 +229,12 @@
         function initMap() {
             map = L.map('map').setView([-35.4444, -60.8831], 11);
 
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri'
+            // ==========================================
+            // CAPA DE GOOGLE EARTH (Google Maps Satellite)
+            // ==========================================
+            L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20, // Permite acercarse mucho más
+                attribution: '&copy; Google'
             }).addTo(map);
         }
 
@@ -240,19 +242,16 @@
             var pin = L.marker(coords).addTo(map);
             pin.bindTooltip(nombre, {permanent: false, direction: 'top'});
 
-            // Acción del PIN (Doble clic)
             pin.on('dblclick', function() {
                 abrirCarpetaLote(coords, nombre);
             });
 
             marcadores.push(pin);
-
-            // Agregar al listado visual del panel izquierdo
             agregarItemLista(coords, nombre);
         }
 
         function abrirCarpetaLote(coords, nombre) {
-            map.flyTo(coords, 17, { animate: true, duration: 1.5 });
+            map.flyTo(coords, 18, { animate: true, duration: 1.5 }); // Zoom nivel 18 para aprovechar Google
             
             let panelRight = document.getElementById('sidebar-right');
             panelRight.classList.add('active');
@@ -277,7 +276,6 @@
             item.className = 'lote-item';
             item.innerHTML = `<span>📍 ${nombre}</span>`;
             
-            // Al hacer clic en la lista, viajamos al lote y abrimos la carpeta
             item.onclick = function() {
                 abrirCarpetaLote(coords, nombre);
             };
@@ -308,16 +306,11 @@
         }
 
         function limpiarMapa() {
-            // Borrar pines del mapa
             for (var i = 0; i < marcadores.length; i++) {
                 map.removeLayer(marcadores[i]);
             }
             marcadores = []; 
-            
-            // Borrar listado del menú izquierdo
             document.getElementById('lista-lotes').innerHTML = "";
-            
-            // Cerrar menú derecho
             document.getElementById('sidebar-right').classList.remove('active');
         }
 
