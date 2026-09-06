@@ -8,82 +8,78 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a202c; color: white; overflow: hidden; }
         
-        /* Layout Principal */
-        #app-container { display: flex; height: 100vh; width: 100vw; }
-        
         /* ============================
-           PANEL IZQUIERDO (Geo-Editor)
+           PANTALLA DE AUTENTICACIÓN
            ============================ */
-        #sidebar-left { width: 250px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; }
-        #sidebar-left.is-collapsed { width: 35px; background: #276749; } 
+        #auth-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #1a202c; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .auth-box { background: #2d3748; padding: 40px; border-radius: 8px; box-shadow: 0 10px 15px rgba(0,0,0,0.5); text-align: center; width: 320px; border-top: 4px solid #2f855a; }
+        .auth-box h1 { margin: 0 0 5px 0; color: #68d391; font-size: 28px; letter-spacing: 1px; }
+        .auth-box p { color: #a0aec0; font-size: 14px; margin-bottom: 25px; }
+        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #4a5568; border-radius: 6px; background: #1a202c; color: white; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+        .auth-input:focus { border-color: #68d391; }
+        .auth-btn { width: 100%; padding: 12px; margin-top: 15px; background: #2f855a; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; transition: background 0.2s; }
+        .auth-btn:hover { background: #276749; }
+        .auth-switch { margin-top: 15px; font-size: 13px; color: #a0aec0; cursor: pointer; }
+        .auth-switch:hover { color: #68d391; text-decoration: underline; }
+
+        /* ============================
+           LAYOUT APP PRINCIPAL
+           ============================ */
+        #app-container { display: none; height: 100vh; width: 100vw; }
         
+        /* Panel Izquierdo */
+        #sidebar-left { width: 250px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        #sidebar-left.is-collapsed { width: 35px; background: #276749; } 
         .content-left { width: 250px; padding: 15px; box-sizing: border-box; transition: opacity 0.2s ease; height: 100%; display: flex; flex-direction: column; }
         #sidebar-left.is-collapsed .content-left { opacity: 0; pointer-events: none; }
-
-        .header-left { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #276749; padding-bottom: 10px; margin-bottom: 15px; flex-shrink: 0;}
+        .header-left { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #276749; padding-bottom: 10px; margin-bottom: 15px; }
         .header-left h2 { color: #68d391; margin: 0; font-size: 20px; }
         
-        /* ============================
-           PANEL DERECHO (Carpeta Lote)
-           ============================ */
-        #sidebar-right { width: 350px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: -2px 0 5px rgba(0,0,0,0.5); overflow: hidden; display: none; }
+        /* Panel Derecho */
+        #sidebar-right { width: 350px; background: #2d3748; transition: width 0.3s ease; position: relative; z-index: 1000; box-shadow: -2px 0 5px rgba(0,0,0,0.5); display: none; }
         #sidebar-right.active { display: block; }
         #sidebar-right.is-collapsed { width: 35px; background: #276749; }
-        
         .content-right { width: 350px; padding: 20px; box-sizing: border-box; transition: opacity 0.2s ease; height: 100%; overflow-y: auto; }
         #sidebar-right.is-collapsed .content-right { opacity: 0; pointer-events: none; }
-
         .header-right { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
         .header-right h3 { margin: 0; color: #68d391; font-size: 24px; }
         .lote-estado { display: inline-block; background: #38a169; color: white; padding: 4px 8px; border-radius: 4px; font-size: 13px; font-weight: bold; margin-top: 8px; margin-bottom: 15px; }
 
-        /* ============================
-           BOTONES Y BARRAS COLAPSABLES
-           ============================ */
-        .btn-collapse { background: transparent; border: none; color: #68d391; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: color 0.2s; }
+        /* Botones Colapsables y Barras */
+        .btn-collapse { background: transparent; border: none; color: #68d391; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
         .btn-collapse:hover { color: white; }
-
-        .collapsed-bar { position: absolute; top: 0; height: 100%; width: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 20px; font-weight: bold; background: #276749; opacity: 0; pointer-events: none; transition: background 0.3s ease, opacity 0.3s ease; z-index: 10; }
+        .collapsed-bar { position: absolute; top: 0; height: 100%; width: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 20px; font-weight: bold; background: #276749; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 10; }
         .collapsed-bar:hover { background: #22543d; }
         .collapsed-bar-left { right: 0; }
         .collapsed-bar-right { left: 0; }
-        
-        #sidebar-left.is-collapsed .collapsed-bar { opacity: 1; pointer-events: auto; }
-        #sidebar-right.is-collapsed .collapsed-bar { opacity: 1; pointer-events: auto; }
+        #sidebar-left.is-collapsed .collapsed-bar, #sidebar-right.is-collapsed .collapsed-bar { opacity: 1; pointer-events: auto; }
 
-        /* ============================
-           COMPONENTES INTERNOS 
-           ============================ */
+        /* Formularios y Botones de la App */
         .form-group { margin-bottom: 15px; flex-shrink: 0; }
         .form-group label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 4px; }
-        .form-group input { width: 100%; padding: 10px; box-sizing: border-box; background: #1a202c; color: white; border: 1px solid #4a5568; border-radius: 6px; font-family: monospace; font-size: 12px; transition: border-color 0.2s; outline: none; }
+        .form-group input { width: 100%; padding: 10px; box-sizing: border-box; background: #1a202c; color: white; border: 1px solid #4a5568; border-radius: 6px; font-family: monospace; font-size: 12px; outline: none; }
         .form-group input:focus { border-color: #68d391; }
-        
-        .btn { width: 100%; padding: 10px; margin-top: 5px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2); flex-shrink: 0; }
+        .btn { width: 100%; padding: 10px; margin-top: 5px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); flex-shrink: 0; }
         .btn-add { background: #2f855a; color: white; }
-        .btn-add:hover { background: #276749; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn-add:hover { background: #276749; }
         .btn-remove { background: #c53030; color: white; margin-top: 15px; }
-        .btn-remove:hover { background: #9b2c2c; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn-remove:hover { background: #9b2c2c; }
+        .btn-logout { background: transparent; color: #a0aec0; border: 1px solid #4a5568; margin-top: 10px; }
+        .btn-logout:hover { background: #4a5568; color: white; }
 
-        /* ============================
-           LISTADO DE LOTES
-           ============================ */
+        /* Listado de Lotes */
         .lotes-container { margin-top: 20px; flex-grow: 1; overflow-y: auto; border-top: 1px solid #4a5568; padding-top: 15px; }
-        .lotes-container h4 { margin: 0 0 10px 0; color: #a0aec0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .lotes-container h4 { margin: 0 0 10px 0; color: #a0aec0; font-size: 12px; text-transform: uppercase; }
         .lotes-list { list-style: none; padding: 0; margin: 0; }
-        .lote-item { background: #1a202c; padding: 10px 12px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #e2e8f0; border-left: 3px solid #2f855a; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; }
+        .lote-item { background: #1a202c; padding: 10px 12px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #e2e8f0; border-left: 3px solid #2f855a; display: flex; align-items: center; }
         .lote-item:hover { background: #4a5568; border-left-color: #68d391; transform: translateX(2px); }
 
-        /* Mapa Central */
+        /* Mapa y Pestañas */
         #map { flex-grow: 1; height: 100%; z-index: 1; }
-
-        /* Pestañas Acordeón */
-        details { background: #4a5568; margin-bottom: 10px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        summary { padding: 14px; font-weight: 600; cursor: pointer; background: #2f855a; outline: none; transition: background 0.2s; }
+        details { background: #4a5568; margin-bottom: 10px; border-radius: 8px; overflow: hidden; }
+        summary { padding: 14px; font-weight: 600; cursor: pointer; background: #2f855a; outline: none; }
         summary:hover { background: #276749; }
         .tab-content { padding: 15px; font-size: 13px; line-height: 1.6; color: #e2e8f0; }
-        
-        /* Lista de actividades */
         .activity-list { list-style: none; padding: 0; margin: 0; }
         .activity-list li { border-bottom: 1px solid #718096; padding: 10px 0; display: flex; justify-content: space-between; }
         .activity-list li:last-child { border-bottom: none; }
@@ -92,15 +88,27 @@
 </head>
 <body>
 
+    <!-- PANTALLA DE LOGIN / REGISTRO -->
+    <div id="auth-screen">
+        <div class="auth-box">
+            <h1>AF</h1>
+            <p>Agro Finance Terminal</p>
+            <input type="text" id="auth-user" class="auth-input" placeholder="Usuario">
+            <input type="password" id="auth-pass" class="auth-input" placeholder="Contraseña">
+            
+            <button class="auth-btn" id="btn-login" onclick="manejarAuth()">Iniciar Sesión</button>
+            <div class="auth-switch" id="auth-toggle" onclick="cambiarModoAuth()">¿No tenés cuenta? Registrate acá.</div>
+        </div>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL -->
     <div id="app-container">
-        <!-- ==========================================
-             PANEL IZQUIERDO (Herramientas de Edición)
-             ========================================== -->
+        <!-- Panel Izquierdo -->
         <div id="sidebar-left">
             <div class="content-left">
                 <div class="header-left">
                     <h2>AF | Geo-Editor</h2>
-                    <button class="btn-collapse" onclick="toggleLeft()" title="Replegar panel">◀</button>
+                    <button class="btn-collapse" onclick="toggleLeft()">◀</button>
                 </div>
                 
                 <div class="form-group">
@@ -111,92 +119,131 @@
                     <label>Coordenadas (Google Earth)</label>
                     <input type="text" id="input-coords" placeholder="35°32'56.51&quot;S 60°54'55.33&quot;W">
                 </div>
-                <button class="btn-add btn" onclick="agregarLoteManual()">+ Guardar Lote</button>
+                <button class="btn-add btn" onclick="guardarLoteNuevo()">+ Guardar Lote</button>
                 
-                <!-- Listado Dinámico de Lotes -->
                 <div class="lotes-container">
-                    <h4>Lotes Activos</h4>
-                    <ul class="lotes-list" id="lista-lotes">
-                        <!-- Los lotes se insertan aquí vía JS -->
-                    </ul>
+                    <h4>Lotes de <span id="nombre-usuario-activo"></span></h4>
+                    <ul class="lotes-list" id="lista-lotes"></ul>
                 </div>
 
-                <button class="btn-remove btn" onclick="limpiarMapa()">Quitar Todos los Lotes</button>
+                <button class="btn-remove btn" onclick="borrarTodosLosLotes()">Eliminar Mis Lotes</button>
+                <button class="btn btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
             </div>
-            
-            <!-- Barra verde colapsada -->
-            <div class="collapsed-bar collapsed-bar-left" onclick="toggleLeft()" title="Expandir panel">
-                ▶
-            </div>
+            <div class="collapsed-bar collapsed-bar-left" onclick="toggleLeft()">▶</div>
         </div>
 
-        <!-- Visor Espacial -->
+        <!-- Mapa -->
         <div id="map"></div>
 
-        <!-- ==========================================
-             PANEL DERECHO (Carpeta de Análisis)
-             ========================================== -->
+        <!-- Panel Derecho -->
         <div id="sidebar-right">
             <div class="content-right">
                 <div class="header-right">
-                    <button class="btn-collapse" onclick="toggleRight()" title="Replegar panel">▶</button>
+                    <button class="btn-collapse" onclick="toggleRight()">▶</button>
                     <h3 id="panel-titulo">Cargando...</h3>
                 </div>
-                <div class="lote-estado" id="panel-estado">Cultivo Activo: Trigo (Encañazón)</div>
+                <div class="lote-estado" id="panel-estado">Cultivo Activo: Trigo</div>
 
-                <!-- Pestaña 1: Actividades -->
                 <details open>
                     <summary>Actividades del lote</summary>
                     <div class="tab-content">
                         <ul class="activity-list">
-                            <li>
-                                <span class="act-date">27/6</span>
-                                <span><strong>Barbecho Químico:</strong> 1.5L Glifo + 1L 2,4-D + 200cc Humectante + 1L Cletodim (para raigrás RR).</span>
-                            </li>
-                            <li>
-                                <span class="act-date">13/7</span>
-                                <span><strong>Siembra:</strong> Trigo DM Tipa (125 kg/ha). Ferti: MAP Variable (105.8 kg/ha prom).</span>
-                            </li>
-                            <li>
-                                <span class="act-date">15/7</span>
-                                <span><strong>Preemergente:</strong> Finesse 15g/ha + 100cc Humectante.</span>
-                            </li>
-                            <li>
-                                <span class="act-date">11/8</span>
-                                <span><strong>Refertilización:</strong> Urea al voleo variable. Rango de 150 a 300 kg/ha (Lomas).</span>
-                            </li>
+                            <li><span class="act-date">27/6</span><span><strong>Barbecho Químico:</strong> 1.5L Glifo + 1L 2,4-D + 200cc Humectante + 1L Cletodim.</span></li>
+                            <li><span class="act-date">13/7</span><span><strong>Siembra:</strong> Trigo DM Tipa (125 kg/ha). Ferti: MAP Variable.</span></li>
+                            <li><span class="act-date">11/8</span><span><strong>Refertilización:</strong> Urea al voleo variable (150-300 kg/ha).</span></li>
                         </ul>
                     </div>
                 </details>
-
-                <!-- Pestaña 2: Rendimiento -->
                 <details>
-                    <summary>Historial de rendimiento del lote</summary>
-                    <div class="tab-content">
-                        <em>Base de datos en construcción. Requiere integración con mapas de cosecha (formato .shp o .tiff) de la maquinaria.</em>
-                    </div>
-                </details>
-
-                <!-- Pestaña 3: Acumulados -->
-                <details>
-                    <summary>Datos históricos acumulados</summary>
-                    <div class="tab-content">
-                        <em>Base de datos en construcción. Espacio reservado para registros de precipitaciones, extracciones de fósforo y rotaciones.</em>
-                    </div>
+                    <summary>Historial de rendimiento</summary>
+                    <div class="tab-content"><em>Módulo en desarrollo para integración de mapas de cosecha.</em></div>
                 </details>
             </div>
-
-            <!-- Barra verde colapsada -->
-            <div class="collapsed-bar collapsed-bar-right" onclick="toggleRight()" title="Expandir panel">
-                ◀
-            </div>
+            <div class="collapsed-bar collapsed-bar-right" onclick="toggleRight()">◀</div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // ==========================================
+        // SISTEMA DE AUTENTICACIÓN Y BASE DE DATOS LOCAL
+        // ==========================================
+        let currentUser = null;
+        let isLoginMode = true;
+
+        function cambiarModoAuth() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('btn-login').innerText = isLoginMode ? "Iniciar Sesión" : "Crear Cuenta";
+            document.getElementById('auth-toggle').innerText = isLoginMode ? "¿No tenés cuenta? Registrate acá." : "¿Ya tenés cuenta? Iniciá sesión.";
+        }
+
+        function manejarAuth() {
+            const user = document.getElementById('auth-user').value.trim().toLowerCase();
+            const pass = document.getElementById('auth-pass').value.trim();
+
+            if (!user || !pass) { alert("Completá usuario y contraseña."); return; }
+
+            // Buscar base de datos de usuarios en el navegador
+            let usersDB = JSON.parse(localStorage.getItem('af_users_db')) || {};
+
+            if (isLoginMode) {
+                if (usersDB[user] && usersDB[user] === pass) {
+                    iniciarApp(user);
+                } else {
+                    alert("Usuario o contraseña incorrectos.");
+                }
+            } else {
+                if (usersDB[user]) {
+                    alert("El usuario ya existe. Iniciá sesión.");
+                } else {
+                    usersDB[user] = pass;
+                    localStorage.setItem('af_users_db', JSON.stringify(usersDB));
+                    alert("Cuenta creada con éxito. Ingresando...");
+                    iniciarApp(user);
+                }
+            }
+        }
+
+        function iniciarApp(username) {
+            currentUser = username;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            document.getElementById('nombre-usuario-activo').innerText = username.toUpperCase();
+            
+            // Si el mapa no existe, lo creamos. Si existe, lo actualizamos.
+            if (!map) {
+                initMap();
+            } else {
+                map.invalidateSize();
+            }
+            
+            cargarLotesDelUsuario();
+        }
+
+        function cerrarSesion() {
+            currentUser = null;
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('auth-user').value = "";
+            document.getElementById('auth-pass').value = "";
+            
+            // Limpiar la interfaz para el próximo usuario
+            for (var i = 0; i < marcadores.length; i++) map.removeLayer(marcadores[i].pin);
+            marcadores = [];
+            document.getElementById('lista-lotes').innerHTML = "";
+            document.getElementById('sidebar-right').classList.remove('active');
+        }
+
+        // ==========================================
+        // MOTOR ESPACIAL (LEAFLET + GOOGLE)
+        // ==========================================
         var map;
-        var marcadores = [];
+        var marcadores = []; // Guarda objetos {pin, data}
+
+        function initMap() {
+            map = L.map('map').setView([-35.4444, -60.8831], 11);
+            L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '&copy; Google' }).addTo(map);
+        }
 
         function toggleLeft() {
             document.getElementById('sidebar-left').classList.toggle('is-collapsed');
@@ -208,113 +255,110 @@
             setTimeout(() => { if(map) map.invalidateSize(); }, 350);
         }
 
+        // ==========================================
+        // GESTIÓN DE LOTES (CRUD)
+        // ==========================================
         function parseDMS(dmsStr) {
             var regex = /(\d+)[°º]\s*(\d+)['´]\s*([\d\.]+)(?:''|")\s*([NSWE])/gi;
-            var match;
-            var coords = [];
-            
+            var match, coords = [];
             while ((match = regex.exec(dmsStr)) !== null) {
-                var degrees = parseFloat(match[1]);
-                var minutes = parseFloat(match[2]);
-                var seconds = parseFloat(match[3]);
-                var direction = match[4].toUpperCase();
-                var decimal = degrees + (minutes / 60) + (seconds / 3600);
-                
-                if (direction === 'S' || direction === 'W') decimal = decimal * -1;
-                coords.push(decimal);
+                var dec = parseFloat(match[1]) + (parseFloat(match[2]) / 60) + (parseFloat(match[3]) / 3600);
+                if (match[4].toUpperCase() === 'S' || match[4].toUpperCase() === 'W') dec = dec * -1;
+                coords.push(dec);
             }
             return coords; 
         }
 
-        function initMap() {
-            map = L.map('map').setView([-35.4444, -60.8831], 11);
-
-            // ==========================================
-            // CAPA DE GOOGLE EARTH (Google Maps Satellite)
-            // ==========================================
-            L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 20, // Permite acercarse mucho más
-                attribution: '&copy; Google'
-            }).addTo(map);
-        }
-
-        function agregarPin(coords, nombre) {
-            var pin = L.marker(coords).addTo(map);
-            pin.bindTooltip(nombre, {permanent: false, direction: 'top'});
-
-            pin.on('dblclick', function() {
-                abrirCarpetaLote(coords, nombre);
+        function cargarLotesDelUsuario() {
+            // Busca en la base de datos local los lotes atados a "este" usuario
+            let lotesGuardados = JSON.parse(localStorage.getItem('af_lotes_' + currentUser)) || [];
+            
+            lotesGuardados.forEach(lote => {
+                renderizarLote(lote.coords, lote.nombre, false); // false = no volver a guardar en DB
             });
-
-            marcadores.push(pin);
-            agregarItemLista(coords, nombre);
-        }
-
-        function abrirCarpetaLote(coords, nombre) {
-            map.flyTo(coords, 18, { animate: true, duration: 1.5 }); // Zoom nivel 18 para aprovechar Google
             
-            let panelRight = document.getElementById('sidebar-right');
-            panelRight.classList.add('active');
-            panelRight.classList.remove('is-collapsed');
-            
-            document.getElementById('panel-titulo').innerText = nombre;
-            
-            if(nombre.toLowerCase().includes("solavarrieta") || nombre.toLowerCase().includes("1")) {
-                document.getElementById('panel-estado').innerText = "Cultivo Activo: Trigo (Encañazón)";
-                document.getElementById('panel-estado').style.background = "#38a169";
+            // Si tiene lotes, centrar en el primero
+            if(lotesGuardados.length > 0) {
+                map.flyTo(lotesGuardados[0].coords, 14);
             } else {
-                document.getElementById('panel-estado').innerText = "Estado: Barbecho / Análisis Pendiente";
-                document.getElementById('panel-estado').style.background = "#d69e2e";
+                map.setView([-35.4444, -60.8831], 11);
             }
-
-            setTimeout(() => { map.invalidateSize(); }, 350);
         }
 
-        function agregarItemLista(coords, nombre) {
-            var lista = document.getElementById('lista-lotes');
-            var item = document.createElement('li');
-            item.className = 'lote-item';
-            item.innerHTML = `<span>📍 ${nombre}</span>`;
-            
-            item.onclick = function() {
-                abrirCarpetaLote(coords, nombre);
-            };
-            
-            lista.appendChild(item);
-        }
-
-        function agregarLoteManual() {
+        function guardarLoteNuevo() {
             var coordsStr = document.getElementById('input-coords').value;
             var nom = document.getElementById('input-nombre').value;
 
-            if (nom === "" || coordsStr === "") {
-                alert("Por favor, complete el nombre y pegue las coordenadas.");
-                return;
-            }
-
+            if (nom === "" || coordsStr === "") return alert("Completá nombre y coordenadas.");
+            
             var parsedCoords = parseDMS(coordsStr);
-            if(parsedCoords.length !== 2) {
-                alert("Formato no válido. Ejemplo: 35°32'56.51\"S 60°54'55.33\"W");
-                return;
-            }
+            if(parsedCoords.length !== 2) return alert("Formato no válido. Usá el formato Google Earth.");
 
-            agregarPin([parsedCoords[0], parsedCoords[1]], nom);
+            renderizarLote([parsedCoords[0], parsedCoords[1]], nom, true); // true = Guardar en DB
             map.flyTo([parsedCoords[0], parsedCoords[1]], 16); 
             
             document.getElementById('input-nombre').value = "";
             document.getElementById('input-coords').value = "";
         }
 
-        function limpiarMapa() {
-            for (var i = 0; i < marcadores.length; i++) {
-                map.removeLayer(marcadores[i]);
+        function renderizarLote(coords, nombre, guardarEnDB) {
+            var pin = L.marker(coords).addTo(map);
+            pin.bindTooltip(nombre, {permanent: false, direction: 'top'});
+
+            pin.on('dblclick', function() { abrirCarpetaLote(coords, nombre); });
+            
+            // Guardar en el array de memoria temporal
+            marcadores.push({ pin: pin, data: { coords: coords, nombre: nombre } });
+            
+            // Renderizar en la lista lateral
+            var lista = document.getElementById('lista-lotes');
+            var item = document.createElement('li');
+            item.className = 'lote-item';
+            item.innerHTML = `<span>📍 ${nombre}</span>`;
+            item.onclick = function() { abrirCarpetaLote(coords, nombre); };
+            lista.appendChild(item);
+
+            // Guardar en Base de Datos Local si es un lote nuevo
+            if(guardarEnDB) {
+                actualizarBaseDeDatos();
             }
+        }
+
+        function actualizarBaseDeDatos() {
+            // Extraer solo la data (no el objeto de interfaz gráfica PIN)
+            let datosLotes = marcadores.map(m => m.data);
+            // Guardar bajo el nombre del usuario actual
+            localStorage.setItem('af_lotes_' + currentUser, JSON.stringify(datosLotes));
+        }
+
+        function abrirCarpetaLote(coords, nombre) {
+            map.flyTo(coords, 18, { animate: true, duration: 1.5 });
+            let panelRight = document.getElementById('sidebar-right');
+            panelRight.classList.add('active');
+            panelRight.classList.remove('is-collapsed');
+            document.getElementById('panel-titulo').innerText = nombre;
+            
+            if(nombre.toLowerCase().includes("solavarrieta")) {
+                document.getElementById('panel-estado').innerText = "Cultivo Activo: Trigo";
+                document.getElementById('panel-estado').style.background = "#38a169";
+            } else {
+                document.getElementById('panel-estado').innerText = "Sin datos cargados";
+                document.getElementById('panel-estado').style.background = "#d69e2e";
+            }
+            setTimeout(() => { map.invalidateSize(); }, 350);
+        }
+
+        function borrarTodosLosLotes() {
+            if(!confirm("¿Seguro que querés borrar todos tus lotes guardados?")) return;
+            
+            for (var i = 0; i < marcadores.length; i++) map.removeLayer(marcadores[i].pin);
             marcadores = []; 
             document.getElementById('lista-lotes').innerHTML = "";
             document.getElementById('sidebar-right').classList.remove('active');
+            
+            // Vaciar la base de datos de este usuario
+            localStorage.removeItem('af_lotes_' + currentUser);
         }
-
-        window.onload = initMap;
     </script>
 </body>
 </html>
